@@ -220,27 +220,27 @@ REM ------------------------------------------------------------
 :HEADER
 cls
 echo.
-echo !C_CYAN!  ======================================================================!C_RESET!
-echo !C_CYAN!               DDDD    EEEE   V     V!C_RESET!
-echo !C_CYAN!               D   D   E      V     V!C_RESET!
-echo !C_CYAN!               D   D   EEEE    V   V !C_RESET!
-echo !C_CYAN!               D   D   E        V V  !C_RESET!
-echo !C_CYAN!               DDDD    EEEE      V   !C_RESET!
-echo.
-echo !C_WHITE!!C_BOLD!                        DEVELOPER SETUP CENTER!C_RESET!
-echo !C_GRAY!                             AnoS !C_WHITE!^| !C_CYAN!v%APP_VERSION%!C_RESET!
-echo !C_CYAN!  ======================================================================!C_RESET!
+echo !C_CYAN!  +==============================================================================+!C_RESET!
+echo !C_CYAN!  ^|    ____  _______     __   ______            __        _____       _ __       ^|!C_RESET!
+echo !C_CYAN!  ^|   / __ \/ ____/ ^|   / /  /_  __/___  ____  / /____   / ___/__  __(_) /____   ^|!C_RESET!
+echo !C_CYAN!  ^|  / / / / __/  ^| ^|  / /    / / / __ \/ __ \/ / ___/   \__ \/ / / / / __/ _ \  ^|!C_RESET!
+echo !C_CYAN!  ^| / /_/ / /___  ^| ^| / /    / / / /_/ / /_/ / (__  )   ___/ / /_/ / / /_/  __/  ^|!C_RESET!
+echo !C_CYAN!  ^|/_____/_____/  ^|___/     /_/  \____/\____/_/____/   /____/\__,_/_/\__/\___/   ^|!C_RESET!
+echo !C_CYAN!  +==============================================================================+!C_RESET!
+echo   !C_CYAN!::!C_RESET! !C_WHITE!!C_BOLD!%APP_NAME%!C_RESET!          !C_GRAY![ Provider: !C_WHITE!AnoS!C_GRAY! :: Version: !C_GREEN!v%APP_VERSION%!C_GRAY! :: Platform: !C_CYAN!Windows!C_GRAY! ]!C_RESET!
+echo !C_CYAN!  --------------------------------------------------------------------------------!C_RESET!
 echo.
 exit /b
 
 REM ------------------------------------------------------------
-REM TWO COLUMN STATUS DISPLAY
+REM TWO COLUMN STATUS DISPLAY (WITH CLEAR NUMBERED SELECTION)
 REM ------------------------------------------------------------
 :TWO_COLUMN_STATUS
 set "TARGET_IDS=%~1"
 for /L %%A in (1,1,50) do (
     set "COL_L_%%A="
     set "COL_R_%%A="
+    set "MAP_R_%%A="
 )
 set /a NUM_L=0
 set /a NUM_R=0
@@ -254,11 +254,12 @@ for %%N in (!TARGET_IDS!) do (
     ) else (
         set /a NUM_R+=1
         set "COL_R_!NUM_R!=!LABEL!"
+        set "MAP_R_!NUM_R!=%%N"
     )
 )
 
-echo   !C_GREEN!!C_BOLD!INSTALLED!C_RESET!                              !C_RED!!C_BOLD!MISSING!C_RESET!
-echo   ----------------------------------------------------------------------
+echo   !C_GREEN!!C_BOLD!INSTALLED (!NUM_L!)!C_RESET!                             !C_RED!!C_BOLD!MISSING (!NUM_R! to install)!C_RESET!
+echo   --------------------------------------------------------------------------------
 set /a MAX_ROWS=NUM_L
 if !NUM_R! GTR !MAX_ROWS! set /a MAX_ROWS=NUM_R
 
@@ -270,15 +271,23 @@ if !MAX_ROWS! EQU 0 (
 for /L %%R in (1,1,!MAX_ROWS!) do (
     set "ITEM_L=!COL_L_%%R!"
     set "ITEM_R=!COL_R_%%R!"
-    if not defined ITEM_L set "ITEM_L=-"
-    if not defined ITEM_R set "ITEM_R=-"
+    if defined ITEM_L (
+        set "ITEM_L=[OK] !ITEM_L!"
+    ) else (
+        set "ITEM_L=     -"
+    )
+    if defined ITEM_R (
+        set "ITEM_R=[%%R] !ITEM_R!"
+    ) else (
+        set "ITEM_R=     -"
+    )
     
     set "ITEM_L=!ITEM_L!                                        "
     set "ITEM_R=!ITEM_R!                                        "
-    echo   !C_GREEN!!ITEM_L:~0,36!!C_RESET!  !C_RED!!ITEM_R:~0,36!!C_RESET!
+    echo   !C_GREEN!!ITEM_L:~0,38!!C_RESET!  !C_RED!!ITEM_R:~0,38!!C_RESET!
 )
-echo   ----------------------------------------------------------------------
-echo   !C_GREEN!Installed: !NUM_L!!C_RESET!                          !C_RED!Missing: !NUM_R!!C_RESET!
+echo   --------------------------------------------------------------------------------
+echo   !C_GREEN!Installed: !NUM_L!!C_RESET!                            !C_RED!Missing: !NUM_R!!C_RESET!
 exit /b
 
 REM ------------------------------------------------------------
@@ -342,21 +351,57 @@ REM ------------------------------------------------------------
 :STANDARD_PACK
 cls
 call :HEADER
-echo  !C_WHITE!!C_BOLD!STANDARD DEVELOPER PACK!C_RESET!
-echo  The recommended foundational stack for Windows development.
+echo   !C_CYAN!::!C_RESET! !C_WHITE!!C_BOLD!STANDARD DEVELOPER PACK!C_RESET!
+echo   The recommended foundational stack for Windows development.
 echo.
 set "STD_IDS=1 2 3 4 5 6 7 8 9 10 13"
 call :TWO_COLUMN_STATUS "!STD_IDS!"
 echo.
+
+if !NUM_R! EQU 0 (
+    echo   !C_GREEN![OK] All tools in the Standard Pack are already installed!!C_RESET!
+    echo.
+    pause
+    goto :MAIN_MENU
+)
+
+echo   !C_WHITE!!C_BOLD!SELECTION ACTIONS:!C_RESET!
+echo     - Type !C_GREEN!Y!C_RESET! or !C_GREEN!A!C_RESET! to install ALL !NUM_R! missing tools
+echo     - Type specific numbers (e.g. !C_CYAN!1 2 3!C_RESET!) to install only those
+echo     - Type !C_RED!Q!C_RESET! or !C_RED!N!C_RESET! to return to main menu
+echo.
 set "CONFIRM="
-set /p "CONFIRM=Install all MISSING tools in this pack? [Y/N]: "
-if /I not "!CONFIRM!"=="Y" goto :MAIN_MENU
+set /p "CONFIRM=  Select option: "
+if /I "!CONFIRM!"=="Q" goto :MAIN_MENU
+if /I "!CONFIRM!"=="N" goto :MAIN_MENU
+if /I "!CONFIRM!"=="" goto :MAIN_MENU
+
+set "INSTALL_IDS="
+if /I "!CONFIRM!"=="Y" set "CONFIRM=A"
+if /I "!CONFIRM!"=="A" (
+    for /L %%K in (1,1,!NUM_R!) do (
+        set "INSTALL_IDS=!INSTALL_IDS! !MAP_R_%%K!"
+    )
+) else (
+    for %%K in (!CONFIRM!) do (
+        set "REAL_ID=!MAP_R_%%K!"
+        if defined REAL_ID (
+            set "INSTALL_IDS=!INSTALL_IDS! !REAL_ID!"
+        )
+    )
+)
+
+if not defined INSTALL_IDS (
+    echo   !C_YELLOW![WARN]!C_RESET! No valid tools selected.
+    timeout /t 2 >nul
+    goto :MAIN_MENU
+)
 
 set /a INSTALLED_COUNT=0
 set /a FAILED_COUNT=0
 set /a SKIPPED_COUNT=0
 
-for %%N in (!STD_IDS!) do (
+for %%N in (!INSTALL_IDS!) do (
     call :INSTALL_APP %%N
 )
 
@@ -400,23 +445,53 @@ set "VIEW_TITLE=%~1"
 set "VIEW_IDS=%~2"
 cls
 call :HEADER
-echo  !C_WHITE!CUSTOM / !VIEW_TITLE!!C_RESET!
+echo   !C_CYAN!::!C_RESET! !C_WHITE!!C_BOLD!CUSTOM / !VIEW_TITLE!!C_RESET!
 echo.
 call :TWO_COLUMN_STATUS "!VIEW_IDS!"
 echo.
-echo  Enter numbers separated by spaces (e.g. 1 3 5), A for All missing, or Q to go back.
+
+if !NUM_R! EQU 0 (
+    echo   !C_GREEN![OK] All applications in this category are already installed!!C_RESET!
+    echo.
+    pause
+    exit /b
+)
+
+echo   !C_WHITE!!C_BOLD!SELECTION ACTIONS:!C_RESET!
+echo     - Type item numbers separated by spaces (e.g. !C_CYAN!1 3 5!C_RESET! or !C_CYAN!1!C_RESET!)
+echo     - Type !C_GREEN!A!C_RESET! to install ALL !NUM_R! missing tools
+echo     - Type !C_RED!Q!C_RESET! to return to category list
 echo.
 set "SEL="
-set /p "SEL=Select tools: "
+set /p "SEL=  Select tools to install: "
 if /I "!SEL!"=="Q" exit /b
 if /I "!SEL!"=="" exit /b
-if /I "!SEL!"=="A" set "SEL=!VIEW_IDS!"
+
+set "INSTALL_IDS="
+if /I "!SEL!"=="A" (
+    for /L %%K in (1,1,!NUM_R!) do (
+        set "INSTALL_IDS=!INSTALL_IDS! !MAP_R_%%K!"
+    )
+) else (
+    for %%K in (!SEL!) do (
+        set "REAL_ID=!MAP_R_%%K!"
+        if defined REAL_ID (
+            set "INSTALL_IDS=!INSTALL_IDS! !REAL_ID!"
+        )
+    )
+)
+
+if not defined INSTALL_IDS (
+    echo   !C_YELLOW![WARN]!C_RESET! No valid missing tool numbers were selected.
+    timeout /t 2 >nul
+    exit /b
+)
 
 set /a INSTALLED_COUNT=0
 set /a FAILED_COUNT=0
 set /a SKIPPED_COUNT=0
 
-for %%N in (!SEL!) do (
+for %%N in (!INSTALL_IDS!) do (
     call :INSTALL_APP %%N
 )
 
@@ -460,25 +535,62 @@ set "PACK_TITLE=%~1"
 set "PACK_IDS=%~2"
 cls
 call :HEADER
-echo  !C_WHITE!PACK / !PACK_TITLE!!C_RESET!
+echo   !C_CYAN!::!C_RESET! !C_WHITE!!C_BOLD!DEVELOPER PACK / !PACK_TITLE!!C_RESET!
 echo.
 call :TWO_COLUMN_STATUS "!PACK_IDS!"
 echo.
+
+if !NUM_R! EQU 0 (
+    echo   !C_GREEN![OK] All applications in this pack are already installed!!C_RESET!
+    echo.
+    pause
+    exit /b
+)
+
+echo   !C_WHITE!!C_BOLD!SELECTION ACTIONS:!C_RESET!
+echo     - Type !C_GREEN!Y!C_RESET! or !C_GREEN!A!C_RESET! to install ALL !NUM_R! missing tools
+echo     - Type specific numbers (e.g. !C_CYAN!1 2!C_RESET!) to install only those
+echo     - Type !C_RED!Q!C_RESET! or !C_RED!N!C_RESET! to go back
+echo.
 set "PCONF="
-set /p "PCONF=Install all MISSING tools in this pack? [Y/N]: "
-if /I not "!PCONF!"=="Y" exit /b
+set /p "PCONF=  Select option: "
+if /I "!PCONF!"=="Q" exit /b
+if /I "!PCONF!"=="N" exit /b
+if /I "!PCONF!"=="" exit /b
+
+set "INSTALL_IDS="
+if /I "!PCONF!"=="Y" set "PCONF=A"
+if /I "!PCONF!"=="A" (
+    for /L %%K in (1,1,!NUM_R!) do (
+        set "INSTALL_IDS=!INSTALL_IDS! !MAP_R_%%K!"
+    )
+) else (
+    for %%K in (!PCONF!) do (
+        set "REAL_ID=!MAP_R_%%K!"
+        if defined REAL_ID (
+            set "INSTALL_IDS=!INSTALL_IDS! !REAL_ID!"
+        )
+    )
+)
+
+if not defined INSTALL_IDS (
+    echo   !C_YELLOW![WARN]!C_RESET! No valid tools selected.
+    timeout /t 2 >nul
+    exit /b
+)
 
 set /a INSTALLED_COUNT=0
 set /a FAILED_COUNT=0
 set /a SKIPPED_COUNT=0
 
-for %%N in (!PACK_IDS!) do (
+for %%N in (!INSTALL_IDS!) do (
     call :INSTALL_APP %%N
 )
 
 call :REFRESH_INTERNAL
 call :SHOW_SUMMARY
 pause
+exit /b
 exit /b
 
 REM ------------------------------------------------------------

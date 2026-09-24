@@ -36,16 +36,15 @@ REM ------------------------------------------------------------
 :HEADER
 cls
 echo.
-echo !C_CYAN!  ======================================================================!C_RESET!
-echo !C_CYAN!               DDDD    EEEE   V     V!C_RESET!
-echo !C_CYAN!               D   D   E      V     V!C_RESET!
-echo !C_CYAN!               D   D   EEEE    V   V !C_RESET!
-echo !C_CYAN!               D   D   E        V V  !C_RESET!
-echo !C_CYAN!               DDDD    EEEE      V   !C_RESET!
-echo.
-echo !C_WHITE!!C_BOLD!                             DEV KEY FORGE!C_RESET!
-echo !C_GRAY!                             AnoS !C_WHITE!^| !C_CYAN!v%APP_VERSION%!C_RESET!
-echo !C_CYAN!  ======================================================================!C_RESET!
+echo !C_CYAN!  +==============================================================================+!C_RESET!
+echo !C_CYAN!  ^|    ____  _______     __   ______            __        _____       _ __       ^|!C_RESET!
+echo !C_CYAN!  ^|   / __ \/ ____/ ^|   / /  /_  __/___  ____  / /____   / ___/__  __(_) /____   ^|!C_RESET!
+echo !C_CYAN!  ^|  / / / / __/  ^| ^|  / /    / / / __ \/ __ \/ / ___/   \__ \/ / / / / __/ _ \  ^|!C_RESET!
+echo !C_CYAN!  ^| / /_/ / /___  ^| ^| / /    / / / /_/ / /_/ / (__  )   ___/ / /_/ / / /_/  __/  ^|!C_RESET!
+echo !C_CYAN!  ^|/_____/_____/  ^|___/     /_/  \____/\____/_/____/   /____/\__,_/_/\__/\___/   ^|!C_RESET!
+echo !C_CYAN!  +==============================================================================+!C_RESET!
+echo   !C_CYAN!::!C_RESET! !C_WHITE!!C_BOLD!%APP_NAME%!C_RESET!          !C_GRAY![ Provider: !C_WHITE!AnoS!C_GRAY! :: Version: !C_GREEN!v%APP_VERSION%!C_GRAY! :: Platform: !C_CYAN!Windows!C_GRAY! ]!C_RESET!
+echo !C_CYAN!  --------------------------------------------------------------------------------!C_RESET!
 echo.
 exit /b
 

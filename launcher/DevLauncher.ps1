@@ -149,16 +149,15 @@ $ToolsCatalog = @(
 function Show-Header {
     Clear-Host
     Write-Host ""
-    Write-Host "  ==============================================================" -ForegroundColor Cyan
-    Write-Host "               DDDD    EEEE   V     V" -ForegroundColor Cyan
-    Write-Host "               D   D   E      V     V" -ForegroundColor Cyan
-    Write-Host "               D   D   EEEE    V   V " -ForegroundColor Cyan
-    Write-Host "               D   D   E        V V  " -ForegroundColor Cyan
-    Write-Host "               DDDD    EEEE      V   " -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "                     DEV TOOLS SUITE LAUNCHER" -ForegroundColor White
-    Write-Host "                          $Provider | v$SuiteVersion" -ForegroundColor Gray
-    Write-Host "  ==============================================================" -ForegroundColor Cyan
+    Write-Host "  +==============================================================================+" -ForegroundColor Cyan
+    Write-Host "  |    ____  _______     __   ______            __        _____       _ __       |" -ForegroundColor Cyan
+    Write-Host "  |   / __ \/ ____/ |   / /  /_  __/___  ____  / /____   / ___/__  __(_) /____   |" -ForegroundColor Cyan
+    Write-Host "  |  / / / / __/  | |  / /    / / / __ \/ __ \/ / ___/   \__ \/ / / / / __/ _ \  |" -ForegroundColor Cyan
+    Write-Host "  | / /_/ / /___  | | / /    / / / /_/ / /_/ / (__  )   ___/ / /_/ / / /_/  __/  |" -ForegroundColor Cyan
+    Write-Host "  |/_____/_____/  |___/     /_/  \____/\____/_/____/   /____/\__,_/_/\__/\___/   |" -ForegroundColor Cyan
+    Write-Host "  +==============================================================================+" -ForegroundColor Cyan
+    Write-Host "  >> DEV TOOLS SUITE LAUNCHER        [ Provider: $Provider | Version: v$SuiteVersion | Platform: Windows ]" -ForegroundColor White
+    Write-Host "  --------------------------------------------------------------------------------" -ForegroundColor Cyan
     Write-Host ""
 }
 
