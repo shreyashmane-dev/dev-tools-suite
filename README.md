@@ -13,11 +13,11 @@
   ==============================================================
 ```
 
-[![Windows 10 / 11](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-blue?logo=windows)](https://github.com/AnoS/DevToolsSuite)
+[![Windows 10 / 11](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-blue?logo=windows)](https://github.com/shreyashmane-dev/dev-tools-suite)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Release: v1.0.0](https://img.shields.io/badge/Release-v1.0.0-cyan.svg)](release/hashes.txt)
 [![Tools Active](https://img.shields.io/badge/Tools-10%20Active-brightgreen.svg)](#the-10-tools)
-[![Provider: AnoS](https://img.shields.io/badge/Provider-AnoS-06b6d4.svg)](https://github.com/AnoS/DevToolsSuite)
+[![Provider: AnoS](https://img.shields.io/badge/Provider-AnoS-06b6d4.svg)](https://github.com/shreyashmane-dev/dev-tools-suite)
 
 A collection of practical, production-grade Windows developer tools built for automated environment setup, diagnostics, project scaffolding, Git workflows, workspace organization, build artifact cleanup, local HTTP serving, and cryptographic key generation.
 
@@ -87,12 +87,18 @@ All ten tools share one visual identity:
 
 DEV Tools Suite is designed for maximum developer flexibility. You can use any tool through two primary workflows:
 
-### Method 1: Run via One-Line PowerShell Command
+### Method 1: Run via One-Line PowerShell or CMD Command
 
 No installation or pre-cloning required. Simply copy the verified launch command from the website or documentation, paste it into your terminal, and press <kbd>Enter</kbd>.
 
+#### In PowerShell:
 ```powershell
-powershell -ExecutionPolicy Bypass -Command "$f=\"$env:TEMP\DevLauncher.ps1\"; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/AnoS/DevToolsSuite/main/launcher/DevLauncher.ps1' -OutFile $f; & $f -Tool setup; Remove-Item -Force $f"
+powershell -ExecutionPolicy Bypass -Command "$f=\"$env:TEMP\DevLauncher.ps1\"; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/shreyashmane-dev/dev-tools-suite/main/launcher/DevLauncher.ps1' -OutFile $f; & $f -Tool setup; Remove-Item -Force $f"
+```
+
+#### In Command Prompt (CMD):
+```cmd
+powershell -ExecutionPolicy Bypass -Command "$f=\"$env:TEMP\DevLauncher.ps1\"; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/shreyashmane-dev/dev-tools-suite/main/launcher/DevLauncher.ps1' -OutFile $f; & $f -Tool setup; Remove-Item -Force $f"
 ```
 
 #### Step-by-Step Guide:

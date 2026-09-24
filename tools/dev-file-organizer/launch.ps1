@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Launcher for DEV File Organizer (Tool 7 in DEV Tools Suite)
 .DESCRIPTION
@@ -19,7 +19,7 @@ if (Test-Path -LiteralPath $LocalBat) {
     exit $LASTEXITCODE
 }
 
-$RemoteUri = 'https://raw.githubusercontent.com/AnoS/DevToolsSuite/main/tools/dev-file-organizer/DevFileOrganizer.bat'
+$RemoteUri = 'https://raw.githubusercontent.com/shreyashmane-dev/dev-tools-suite/main/tools/dev-file-organizer/DevFileOrganizer.bat'
 $TargetDir = Join-Path $env:LOCALAPPDATA 'DevToolsSuite\tools\dev-file-organizer'
 if (-not (Test-Path -LiteralPath $TargetDir)) {
     New-Item -ItemType Directory -Path $TargetDir -Force | Out-Null

@@ -40,8 +40,8 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $SuiteVersion = '1.0.0'
-$RepoOwner = if ($env:DEV_REPO_OWNER) { $env:DEV_REPO_OWNER } else { 'AnoS' }
-$RepoName = if ($env:DEV_REPO_NAME) { $env:DEV_REPO_NAME } else { 'DevToolsSuite' }
+$RepoOwner = if ($env:DEV_REPO_OWNER) { $env:DEV_REPO_OWNER } else { 'shreyashmane-dev' }
+$RepoName = if ($env:DEV_REPO_NAME) { $env:DEV_REPO_NAME } else { 'dev-tools-suite' }
 try {
     $detectedRemote = git config --get remote.origin.url 2>$null
     if ($detectedRemote -match 'github\.com[:/]([^/]+)/([^/\.]+)') {

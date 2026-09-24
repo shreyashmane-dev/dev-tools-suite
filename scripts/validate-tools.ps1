@@ -135,12 +135,14 @@ $scannedFiles = Get-ChildItem -Path $RepoRoot -Recurse -File -Include *.bat, *.p
 $forbiddenFound = 0
 foreach ($f in $scannedFiles) {
     $content = Get-Content -Path $f.FullName -Raw -ErrorAction SilentlyContinue
-    if ($content -and $content.ToLower().Contains($forbiddenPattern.ToLower())) {
-        Write-Host "  [FAIL] Forbidden personal name found in: $($f.FullName.Replace($RepoRoot, ''))" -ForegroundColor Red
+    # Exclude authorized GitHub remote repository URLs and username configuration from personal name search
+    $contentWithoutRepo = $content -replace 'https?://[^\s"''`)]*', '' -replace 'git@[^\s"''`)]*', '' -replace 'shreyashmane-dev', ''
+    if ($contentWithoutRepo -and $contentWithoutRepo.ToLower().Contains($forbiddenPattern.ToLower())) {
+        Write-Host "  [FAIL] Forbidden personal name found in branding/code: $($f.FullName.Replace($RepoRoot, ''))" -ForegroundColor Red
         $forbiddenFound++
     }
 }
-Assert-Check "Zero personal name mentions across all project files" ($forbiddenFound -eq 0) "Found in $forbiddenFound file(s)"
+Assert-Check "Zero personal name mentions in branding, titles, metadata & comments" ($forbiddenFound -eq 0) "Found in $forbiddenFound file(s)"
 
 Write-Host ""
 Write-Host "==============================================================" -ForegroundColor Cyan

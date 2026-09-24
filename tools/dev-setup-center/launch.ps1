@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Launcher for DEV Setup Center (Tool 1 in DEV Tools Suite)
 .DESCRIPTION
@@ -20,7 +20,7 @@ if (Test-Path -LiteralPath $LocalBat) {
 }
 
 # If launched independently over web
-$RemoteUri = 'https://raw.githubusercontent.com/AnoS/DevToolsSuite/main/tools/dev-setup-center/DevSetupCenter.bat'
+$RemoteUri = 'https://raw.githubusercontent.com/shreyashmane-dev/dev-tools-suite/main/tools/dev-setup-center/DevSetupCenter.bat'
 $TargetDir = Join-Path $env:LOCALAPPDATA 'DevToolsSuite\tools\dev-setup-center'
 if (-not (Test-Path -LiteralPath $TargetDir)) {
     New-Item -ItemType Directory -Path $TargetDir -Force | Out-Null

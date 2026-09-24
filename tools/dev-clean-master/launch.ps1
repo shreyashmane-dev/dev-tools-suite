@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Launcher for DEV Clean Master (Tool 8 in DEV Tools Suite)
 .DESCRIPTION
@@ -19,7 +19,7 @@ if (Test-Path -LiteralPath $LocalBat) {
     exit $LASTEXITCODE
 }
 
-$RemoteUri = 'https://raw.githubusercontent.com/AnoS/DevToolsSuite/main/tools/dev-clean-master/DevCleanMaster.bat'
+$RemoteUri = 'https://raw.githubusercontent.com/shreyashmane-dev/dev-tools-suite/main/tools/dev-clean-master/DevCleanMaster.bat'
 $TargetDir = Join-Path $env:LOCALAPPDATA 'DevToolsSuite\tools\dev-clean-master'
 if (-not (Test-Path -LiteralPath $TargetDir)) {
     New-Item -ItemType Directory -Path $TargetDir -Force | Out-Null

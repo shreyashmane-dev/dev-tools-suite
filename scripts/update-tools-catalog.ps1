@@ -116,7 +116,13 @@ foreach ($folder in $ToolFolders) {
         $features = @("SSH key generation (ed25519 and RSA-4096)", "Instant localhost SSL/TLS self-signed certificates", "Cryptographically secure API keys and secrets", "JWT HMAC-SHA256 signing secret generator", "MD5, SHA-256, and SHA-512 file hasher")
     }
 
-    $psCommand = 'powershell -ExecutionPolicy Bypass -Command "$f=\"$env:TEMP\DevLauncher.ps1\"; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri ''https://raw.githubusercontent.com/AnoS/DevToolsSuite/main/launcher/DevLauncher.ps1'' -OutFile $f; & $f -Tool ' + $shortId + '; Remove-Item -Force $f"'
+    $RepoOwner = 'shreyashmane-dev'
+    $RepoName = 'dev-tools-suite'
+    $Branch = 'main'
+    $RawBase = "https://raw.githubusercontent.com/$RepoOwner/$RepoName/$Branch"
+    $RepoBase = "https://github.com/$RepoOwner/$RepoName"
+
+    $psCommand = 'powershell -ExecutionPolicy Bypass -Command "$f=\"$env:TEMP\DevLauncher.ps1\"; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri ''' + $RawBase + '/launcher/DevLauncher.ps1'' -OutFile $f; & $f -Tool ' + $shortId + '; Remove-Item -Force $f"'
 
     $toolEntry = [ordered]@{
         id = $id
@@ -132,8 +138,8 @@ foreach ($folder in $ToolFolders) {
         fileSize = "$fileSizeKB KB"
         sha256 = $hashVal
         powershellCommand = $psCommand
-        downloadUrl = "https://raw.githubusercontent.com/AnoS/DevToolsSuite/main/$relPath"
-        githubUrl = "https://github.com/AnoS/DevToolsSuite/blob/main/$relPath"
+        downloadUrl = "$RawBase/$relPath"
+        githubUrl = "$RepoBase/blob/$Branch/$relPath"
         icon = $icon
         features = $features
         requirements = [ordered]@{
@@ -168,8 +174,8 @@ $CatalogObj = [ordered]@{
         provider = "AnoS"
         version = "1.0.0"
         description = "A collection of practical Windows developer tools built for setup, diagnostics, project creation and GitHub workflows."
-        githubUrl = "https://github.com/AnoS/DevToolsSuite"
-        rawBaseUrl = "https://raw.githubusercontent.com/AnoS/DevToolsSuite/main"
+        githubUrl = "https://github.com/shreyashmane-dev/dev-tools-suite"
+        rawBaseUrl = "https://raw.githubusercontent.com/shreyashmane-dev/dev-tools-suite/main"
     }
     tools = $DiscoveredTools
 }
