@@ -91,14 +91,22 @@ DEV Tools Suite is designed for maximum developer flexibility. You can use any t
 
 No installation or pre-cloning required. Simply copy the verified launch command from the website or documentation, paste it into your terminal, and press <kbd>Enter</kbd>.
 
-#### In PowerShell:
+#### In PowerShell (Windows Terminal / PowerShell 5.1 & 7+):
 ```powershell
-powershell -ExecutionPolicy Bypass -Command "$f=\"$env:TEMP\DevLauncher.ps1\"; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/shreyashmane-dev/dev-tools-suite/main/launcher/DevLauncher.ps1' -OutFile $f; & $f -Tool setup; Remove-Item -Force $f"
+# Launch specific tool (e.g. DEV Setup Center):
+$f = "$env:TEMP\DevLauncher.ps1"; irm https://raw.githubusercontent.com/shreyashmane-dev/dev-tools-suite/main/launcher/DevLauncher.ps1 -OutFile $f; & $f -Tool setup; rm $f
+
+# Or launch the interactive suite menu:
+$f = "$env:TEMP\DevLauncher.ps1"; irm https://raw.githubusercontent.com/shreyashmane-dev/dev-tools-suite/main/launcher/DevLauncher.ps1 -OutFile $f; & $f; rm $f
 ```
 
 #### In Command Prompt (CMD):
 ```cmd
-powershell -ExecutionPolicy Bypass -Command "$f=\"$env:TEMP\DevLauncher.ps1\"; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/shreyashmane-dev/dev-tools-suite/main/launcher/DevLauncher.ps1' -OutFile $f; & $f -Tool setup; Remove-Item -Force $f"
+:: Launch specific tool (e.g. DEV Setup Center):
+powershell -ExecutionPolicy Bypass -Command "$f = Join-Path $env:TEMP 'DevLauncher.ps1'; irm 'https://raw.githubusercontent.com/shreyashmane-dev/dev-tools-suite/main/launcher/DevLauncher.ps1' -OutFile $f; & $f -Tool setup; rm $f"
+
+:: Or launch the interactive suite menu:
+powershell -ExecutionPolicy Bypass -Command "$f = Join-Path $env:TEMP 'DevLauncher.ps1'; irm 'https://raw.githubusercontent.com/shreyashmane-dev/dev-tools-suite/main/launcher/DevLauncher.ps1' -OutFile $f; & $f; rm $f"
 ```
 
 #### Step-by-Step Guide:

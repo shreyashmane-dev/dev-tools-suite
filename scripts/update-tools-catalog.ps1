@@ -122,7 +122,7 @@ foreach ($folder in $ToolFolders) {
     $RawBase = "https://raw.githubusercontent.com/$RepoOwner/$RepoName/$Branch"
     $RepoBase = "https://github.com/$RepoOwner/$RepoName"
 
-    $psCommand = 'powershell -ExecutionPolicy Bypass -Command "$f=\"$env:TEMP\DevLauncher.ps1\"; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri ''' + $RawBase + '/launcher/DevLauncher.ps1'' -OutFile $f; & $f -Tool ' + $shortId + '; Remove-Item -Force $f"'
+    $psCommand = '$f = "$env:TEMP\DevLauncher.ps1"; irm ''' + $RawBase + '/launcher/DevLauncher.ps1'' -OutFile $f; & $f -Tool ' + $shortId + '; rm $f'
 
     $toolEntry = [ordered]@{
         id = $id

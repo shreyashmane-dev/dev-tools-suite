@@ -40,6 +40,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $SuiteVersion = '1.0.0'
+$Provider = 'AnoS'
 $RepoOwner = if ($env:DEV_REPO_OWNER) { $env:DEV_REPO_OWNER } else { 'shreyashmane-dev' }
 $RepoName = if ($env:DEV_REPO_NAME) { $env:DEV_REPO_NAME } else { 'dev-tools-suite' }
 try {
