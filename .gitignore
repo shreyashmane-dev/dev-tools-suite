@@ -1,0 +1,28 @@
+# Windows System Files
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+
+# Temporary and Log Files
+*.tmp
+*.bak
+*.log
+Dev-Environment-Report.txt
+Dev-Doctor-Report.txt
+Dev-System-Report.txt
+
+# Editor / IDE Files
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Local Caches
+__pycache__/
+.cache/
+node_modules/
