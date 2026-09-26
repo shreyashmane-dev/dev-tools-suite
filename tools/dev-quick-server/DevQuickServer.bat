@@ -31,6 +31,19 @@ set "APP_PROVIDER=AnoS"
 set "SERVE_DIR=%CD%"
 set "SERVE_PORT=8000"
 
+set "EMPTY_COUNT=0"
+
+REM --- Direct CLI Argument Routing
+if not "%~1"=="" (
+    set "CHOICE=%~1"
+    if "%~1"=="1" goto :START_SERVER
+    if "%~1"=="2" goto :CHANGE_DIR
+    if "%~1"=="3" goto :CHANGE_PORT
+    if "%~1"=="4" goto :SHOW_IPS
+    if "%~1"=="5" goto :UNBLOCK_PORT
+    if "%~1"=="0" goto :EXIT
+)
+
 goto :MAIN_MENU
 
 REM ------------------------------------------------------------
@@ -66,13 +79,20 @@ echo  !C_WHITE!MAIN MENU!C_RESET!
 echo    !C_CYAN![1]!C_RESET!  Start HTTP Server Now
 echo    !C_CYAN![2]!C_RESET!  Change Serving Directory
 echo    !C_CYAN![3]!C_RESET!  Change Port (Default: 8000)
-echo    !C_CYAN![4]!C_RESET!  Show Local & LAN Access IP Addresses
+echo    !C_CYAN![4]!C_RESET!  Show Local ^& LAN Access IP Addresses
 echo    !C_CYAN![5]!C_RESET!  Check / Terminate Process on Port (Port Unblocker)
 echo    !C_RED![0]!C_RESET!  Exit
 echo.
 
 set "CHOICE="
 set /p "CHOICE=Select an option [0-5]: "
+if not defined CHOICE (
+    set /a EMPTY_COUNT+=1
+    if !EMPTY_COUNT! geq 3 goto :EXIT
+    goto :MAIN_MENU
+)
+set "EMPTY_COUNT=0"
+
 if "!CHOICE!"=="1" goto :START_SERVER
 if "!CHOICE!"=="2" goto :CHANGE_DIR
 if "!CHOICE!"=="3" goto :CHANGE_PORT
@@ -115,42 +135,7 @@ REM Fallback to native PowerShell HttpListener (zero dependencies required!)
 echo  Running via native Windows .NET HttpListener...
 echo  Press Ctrl+C to stop the server.
 echo.
-powershell -NoProfile -Command "
-$port = %SERVE_PORT%;
-$dir = '%SERVE_DIR%';
-$listener = New-Object System.Net.HttpListener;
-$listener.Prefixes.Add('http://localhost:' + $port + '/');
-$listener.Prefixes.Add('http://127.0.0.1:' + $port + '/');
-try {
-    $listener.Start();
-    Write-Host ('  Server active at http://localhost:' + $port) -ForegroundColor Green;
-    while ($listener.IsListening) {
-        $context = $listener.GetContext();
-        $req = $context.Request;
-        $res = $context.Response;
-        $localPath = Join-Path $dir $req.Url.LocalPath.TrimStart('/');
-        if (Test-Path -LiteralPath $localPath -PathType Container) {
-            $localPath = Join-Path $localPath 'index.html';
-        }
-        if (Test-Path -LiteralPath $localPath -PathType Leaf) {
-            $bytes = [IO.File]::ReadAllBytes($localPath);
-            $res.ContentType = 'text/html';
-            if ($localPath.EndsWith('.css')) { $res.ContentType = 'text/css'; }
-            if ($localPath.EndsWith('.js')) { $res.ContentType = 'application/javascript'; }
-            if ($localPath.EndsWith('.json')) { $res.ContentType = 'application/json'; }
-            $res.ContentLength64 = $bytes.Length;
-            $res.OutputStream.Write($bytes, 0, $bytes.Length);
-        } else {
-            $res.StatusCode = 404;
-            $msg = [Text.Encoding]::UTF8.GetBytes('<h1>404 Not Found</h1>');
-            $res.OutputStream.Write($msg, 0, $msg.Length);
-        }
-        $res.Close();
-    }
-} finally {
-    $listener.Stop();
-}
-"
+powershell -NoProfile -Command "$port = %SERVE_PORT%; $dir = '%SERVE_DIR%'; $listener = New-Object System.Net.HttpListener; $listener.Prefixes.Add('http://localhost:' + $port + '/'); $listener.Prefixes.Add('http://127.0.0.1:' + $port + '/'); try { $listener.Start(); Write-Host ('  Server active at http://localhost:' + $port) -ForegroundColor Green; while ($listener.IsListening) { $context = $listener.GetContext(); $req = $context.Request; $res = $context.Response; $localPath = Join-Path $dir $req.Url.LocalPath.TrimStart('/'); if (Test-Path -LiteralPath $localPath -PathType Container) { $localPath = Join-Path $localPath 'index.html' }; if (Test-Path -LiteralPath $localPath -PathType Leaf) { $bytes = [IO.File]::ReadAllBytes($localPath); $res.ContentType = 'text/html'; if ($localPath.EndsWith('.css')) { $res.ContentType = 'text/css' }; if ($localPath.EndsWith('.js')) { $res.ContentType = 'application/javascript' }; if ($localPath.EndsWith('.json')) { $res.ContentType = 'application/json' }; $res.ContentLength64 = $bytes.Length; $res.OutputStream.Write($bytes, 0, $bytes.Length) } else { $res.StatusCode = 404; $msg = [Text.Encoding]::UTF8.GetBytes('<h1>404 Not Found</h1>'); $res.OutputStream.Write($msg, 0, $msg.Length) }; $res.Close() } } finally { $listener.Stop() }"
 goto :MAIN_MENU
 
 REM ------------------------------------------------------------
@@ -174,6 +159,7 @@ if defined NEW_DIR (
         echo !C_RED![FAIL] Directory does not exist.!C_RESET!
     )
 )
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -188,11 +174,16 @@ echo  ----------------------------------------------------------------------
 echo  Current Port: %SERVE_PORT%
 echo.
 set "NEW_PORT="
-set /p "NEW_PORT=Enter port [e.g. 3000, 5000, 8080]: "
+if not "%~2"=="" (
+    set "NEW_PORT=%~2"
+) else (
+    set /p "NEW_PORT=Enter port [e.g. 3000, 5000, 8080]: "
+)
 if defined NEW_PORT (
     set "SERVE_PORT=%NEW_PORT%"
     echo !C_GREEN![OK] Port updated to %SERVE_PORT%.!C_RESET!
 )
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -202,23 +193,15 @@ REM ------------------------------------------------------------
 :SHOW_IPS
 cls
 call :HEADER
-echo  !C_WHITE!!C_BOLD!LOCAL & NETWORK ACCESS URLS!C_RESET!
+echo  !C_WHITE!!C_BOLD!LOCAL ^& NETWORK ACCESS URLS!C_RESET!
 echo  ----------------------------------------------------------------------
 echo  Loopback URL : !C_GREEN!http://localhost:%SERVE_PORT%!C_RESET!
 echo  Localhost IP : !C_GREEN!http://127.0.0.1:%SERVE_PORT%!C_RESET!
 echo.
 echo  LAN URLs (Accessible from phones, tablets, or other PCs on same Wi-Fi):
-powershell -NoProfile -Command "
-$ips = Get-CimInstance Win32_NetworkAdapterConfiguration | Where-Object { $_.IPEnabled -eq $true };
-foreach ($adapter in $ips) {
-    foreach ($ip in $adapter.IPAddress) {
-        if ($ip -match '^\d+\.\d+\.\d+\.\d+$' -and $ip -ne '127.0.0.1') {
-            Write-Host ('  http://' + $ip + ':%SERVE_PORT% (' + $adapter.Description + ')') -ForegroundColor Cyan;
-        }
-    }
-}
-" 2>nul
+powershell -NoProfile -Command "$ips = Get-CimInstance Win32_NetworkAdapterConfiguration | Where-Object { $_.IPEnabled -eq $true }; foreach ($adapter in $ips) { foreach ($ip in $adapter.IPAddress) { if ($ip -match '^\d+\.\d+\.\d+\.\d+$' -and $ip -ne '127.0.0.1') { Write-Host ('  http://' + $ip + ':%SERVE_PORT% [' + $adapter.Description + ']') -ForegroundColor Cyan } } }" 2>nul
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -228,34 +211,24 @@ REM ------------------------------------------------------------
 :UNBLOCK_PORT
 cls
 call :HEADER
-echo  !C_WHITE!!C_BOLD!PORT UNBLOCKER & PROCESS TERMINATOR!C_RESET!
+echo  !C_WHITE!!C_BOLD!PORT UNBLOCKER ^& PROCESS TERMINATOR!C_RESET!
 echo  ----------------------------------------------------------------------
 set "CHECK_P="
-set /p "CHECK_P=Enter port to inspect [Default: %SERVE_PORT%]: "
+if not "%~2"=="" (
+    set "CHECK_P=%~2"
+) else (
+    set /p "CHECK_P=Enter port to inspect [Default: %SERVE_PORT%]: "
+)
 if not defined CHECK_P set "CHECK_P=%SERVE_PORT%"
 
 echo.
-powershell -NoProfile -Command "
-$p = %CHECK_P%;
-$match = netstat -ano | Where-Object { $_ -match (':0*' + $p + '\s+.*LISTENING') };
-if ($match) {
-    foreach ($m in $match) {
-        $tokens = $m.Trim() -split '\s+';
-        $pidVal = $tokens[-1];
-        $proc = Get-Process -Id $pidVal -ErrorAction SilentlyContinue;
-        $name = if ($proc) { $proc.ProcessName } else { 'Unknown' };
-        Write-Host ('  Port ' + $p + ' is in use by PID: ' + $pidVal + ' (' + $name + ')') -ForegroundColor Yellow;
-        $ans = (Read-Host '  Kill this process? [Y/N]').Trim();
-        if ($ans -eq 'Y' -or $ans -eq 'y') {
-            Stop-Process -Id $pidVal -Force -ErrorAction SilentlyContinue;
-            Write-Host '  [OK] Process terminated.' -ForegroundColor Green;
-        }
-    }
-} else {
-    Write-Host ('  Port ' + $p + ' is free and available!') -ForegroundColor Green;
-}
-" 2>nul
+if not "%~1"=="" (
+    powershell -NoProfile -Command "$p = %CHECK_P%; $match = netstat -ano | Where-Object { $_ -match (':0*' + $p + '\s+.*LISTENING') }; if ($match) { foreach ($m in $match) { $tokens = $m.Trim() -split '\s+'; $pidVal = $tokens[-1]; $proc = Get-Process -Id $pidVal -ErrorAction SilentlyContinue; $name = if ($proc) { $proc.ProcessName } else { 'Unknown' }; Write-Host ('  Port ' + $p + ' is in use by PID: ' + $pidVal + ' [' + $name + ']') -ForegroundColor Yellow } } else { Write-Host ('  Port ' + $p + ' is free and available!') -ForegroundColor Green }" 2>nul
+) else (
+    powershell -NoProfile -Command "$p = %CHECK_P%; $match = netstat -ano | Where-Object { $_ -match (':0*' + $p + '\s+.*LISTENING') }; if ($match) { foreach ($m in $match) { $tokens = $m.Trim() -split '\s+'; $pidVal = $tokens[-1]; $proc = Get-Process -Id $pidVal -ErrorAction SilentlyContinue; $name = if ($proc) { $proc.ProcessName } else { 'Unknown' }; Write-Host ('  Port ' + $p + ' is in use by PID: ' + $pidVal + ' [' + $name + ']') -ForegroundColor Yellow; $ans = (Read-Host '  Kill this process? [Y/N]').Trim(); if ($ans -eq 'Y' -or $ans -eq 'y') { Stop-Process -Id $pidVal -Force -ErrorAction SilentlyContinue; Write-Host '  [OK] Process terminated.' -ForegroundColor Green } } } else { Write-Host ('  Port ' + $p + ' is free and available!') -ForegroundColor Green }" 2>nul
+)
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -268,7 +241,5 @@ call :HEADER
 echo  !C_GREEN!Thank you for using DEV.!C_RESET!
 echo  !C_GRAY!Provider: AnoS ^| Developer Tools Suite!C_RESET!
 echo.
-echo  Press any key to close...
-pause >nul
 endlocal
 exit /b 0

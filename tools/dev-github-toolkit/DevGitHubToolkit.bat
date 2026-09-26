@@ -28,6 +28,26 @@ set "APP_NAME=DEV GitHub Toolkit"
 set "APP_VERSION=1.0.0"
 set "APP_PROVIDER=AnoS"
 
+set "EMPTY_COUNT=0"
+
+REM --- Direct CLI Argument Routing
+if not "%~1"=="" (
+    set "CHOICE=%~1"
+    if "%~1"=="1" goto :CHECK_GIT
+    if "%~1"=="2" goto :CHECK_GH
+    if "%~1"=="3" goto :CONFIG_IDENTITY
+    if "%~1"=="4" goto :AUTH_STATUS
+    if "%~1"=="5" goto :INIT_REPO
+    if "%~1"=="6" goto :ADD_REMOTE
+    if "%~1"=="7" goto :COMMIT_CHANGES
+    if "%~1"=="8" goto :PUSH_REPO
+    if "%~1"=="9" goto :PULL_REPO
+    if "%~1"=="10" goto :BRANCH_MGR
+    if "%~1"=="11" goto :STATUS_REPO
+    if "%~1"=="12" goto :OPEN_GITHUB
+    if "%~1"=="0" goto :EXIT
+)
+
 goto :MAIN_MENU
 
 REM ------------------------------------------------------------
@@ -59,11 +79,11 @@ echo  !C_WHITE!WORKING REPOSITORY!C_RESET!
 git rev-parse --is-inside-work-tree >nul 2>&1
 if not errorlevel 1 (
     for /f "delims=" %%B in ('git branch --show-current 2^>nul') do set "CUR_BRANCH=%%B"
-    if not defined CUR_BRANCH set "CUR_BRANCH=HEAD (detached)"
+    if not defined CUR_BRANCH set "CUR_BRANCH=HEAD [detached]"
     echo  Directory : !C_CYAN!%CD%!C_RESET!
     echo  Branch    : !C_GREEN!!CUR_BRANCH!!C_RESET!
 ) else (
-    echo  Directory : !C_YELLOW!%CD% (Not a git repository)!C_RESET!
+    echo  Directory : !C_YELLOW!%CD% [Not a git repository]!C_RESET!
 )
 echo.
 echo  !C_WHITE!MAIN MENU!C_RESET!
@@ -78,6 +98,13 @@ echo.
 
 set "CHOICE="
 set /p "CHOICE=Select an option [0-12]: "
+if not defined CHOICE (
+    set /a EMPTY_COUNT+=1
+    if !EMPTY_COUNT! geq 3 goto :EXIT
+    goto :MAIN_MENU
+)
+set "EMPTY_COUNT=0"
+
 if "!CHOICE!"=="1" goto :CHECK_GIT
 if "!CHOICE!"=="2" goto :CHECK_GH
 if "!CHOICE!"=="3" goto :CONFIG_IDENTITY
@@ -113,6 +140,7 @@ if errorlevel 1 (
     for /f "delims=" %%V in ('git --version 2^>nul') do echo  !C_GREEN![OK]!C_RESET! Installed Version : %%V
 )
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -126,7 +154,7 @@ echo  !C_WHITE!!C_BOLD!GITHUB CLI (GH) CHECK!C_RESET!
 echo  ----------------------------------------------------------------------
 where gh >nul 2>&1
 if errorlevel 1 (
-    echo  !C_YELLOW![INFO] GitHub CLI (gh) is not installed.!C_RESET!
+    echo  !C_YELLOW![INFO] GitHub CLI [gh] is not installed.!C_RESET!
     echo  GitHub CLI enables secure browser-based authentication without raw tokens.
     echo  Install via: winget install --id GitHub.cli
 ) else (
@@ -138,6 +166,7 @@ if errorlevel 1 (
 )
 :END_CHECK_GH
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -156,19 +185,28 @@ echo  Current Global user.name  : !C_CYAN!%CUR_NAME%!C_RESET!
 echo  Current Global user.email : !C_CYAN!%CUR_EMAIL%!C_RESET!
 echo.
 set "SET_NAME="
-set /p "SET_NAME=Enter new global user.name [Press Enter to keep current]: "
+if not "%~2"=="" (
+    set "SET_NAME=%~2"
+) else (
+    set /p "SET_NAME=Enter new global user.name [Press Enter to keep current]: "
+)
 if defined SET_NAME (
     git config --global user.name "%SET_NAME%"
     echo !C_GREEN![OK] user.name updated to: %SET_NAME%!C_RESET!
 )
 
 set "SET_EMAIL="
-set /p "SET_EMAIL=Enter new global user.email [Press Enter to keep current]: "
+if not "%~3"=="" (
+    set "SET_EMAIL=%~3"
+) else (
+    set /p "SET_EMAIL=Enter new global user.email [Press Enter to keep current]: "
+)
 if defined SET_EMAIL (
     git config --global user.email "%SET_EMAIL%"
     echo !C_GREEN![OK] user.email updated to: %SET_EMAIL%!C_RESET!
 )
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -182,10 +220,10 @@ echo  !C_WHITE!!C_BOLD!GITHUB AUTHENTICATION STATUS!C_RESET!
 echo  ----------------------------------------------------------------------
 where gh >nul 2>&1
 if errorlevel 1 (
-    echo  !C_YELLOW![INFO] GitHub CLI (gh) is not installed.!C_RESET!
+    echo  !C_YELLOW![INFO] GitHub CLI [gh] is not installed.!C_RESET!
     echo.
     echo  Safe Authentication Recommendations:
-    echo  1. Use GitHub CLI for safe web login (does not store plain tokens):
+    echo  1. Use GitHub CLI for safe web login [does not store plain tokens]:
     echo     winget install --id GitHub.cli
     echo     gh auth login -w
     echo.
@@ -198,8 +236,8 @@ if errorlevel 1 (
     echo.
     gh auth status
     echo.
-    echo    !C_CYAN![1]!C_RESET! Login via Web Browser (gh auth login -w)
-    echo    !C_CYAN![2]!C_RESET! Refresh Authentication (gh auth refresh)
+    echo    !C_CYAN![1]!C_RESET! Login via Web Browser [gh auth login -w]
+    echo    !C_CYAN![2]!C_RESET! Refresh Authentication [gh auth refresh]
     echo    !C_RED![0]!C_RESET! Back to Menu
     echo.
     set "AUTH_ACT="
@@ -268,7 +306,7 @@ if "!REM_ACT!"=="1" (
     if not defined REM_NAME set "REM_NAME=origin"
     
     set "REM_URL="
-    set /p "REM_URL=Remote URL (e.g. https://github.com/org/repo.git): "
+    set /p "REM_URL=Remote URL [e.g. https://github.com/org/repo.git]: "
     if defined REM_URL (
         git remote add "!REM_NAME!" "!REM_URL!"
         echo !C_GREEN![OK] Remote added.!C_RESET!
@@ -476,6 +514,7 @@ echo  ----------------------------------------------------------------------
 git rev-parse --is-inside-work-tree >nul 2>&1
 if errorlevel 1 (
     echo !C_RED![FAIL] Current directory is not a Git repository.!C_RESET!
+    if not "%~1"=="" goto :EXIT
     pause
     goto :MAIN_MENU
 )
@@ -485,6 +524,7 @@ echo.
 echo  Recent Commits:
 git log --oneline -n 5 2>nul
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -499,6 +539,7 @@ echo  ----------------------------------------------------------------------
 git rev-parse --is-inside-work-tree >nul 2>&1
 if errorlevel 1 (
     echo !C_RED![FAIL] Not inside a Git repository.!C_RESET!
+    if not "%~1"=="" goto :EXIT
     pause
     goto :MAIN_MENU
 )
@@ -507,6 +548,7 @@ for /f "delims=" %%R in ('git remote get-url origin 2^>nul') do set "RAW_REMOTE=
 
 if not defined RAW_REMOTE (
     echo !C_YELLOW![WARN] No 'origin' remote found.!C_RESET!
+    if not "%~1"=="" goto :EXIT
     pause
     goto :MAIN_MENU
 )
@@ -514,21 +556,9 @@ if not defined RAW_REMOTE (
 echo  Detected Remote URL: !RAW_REMOTE!
 
 REM Convert git@github.com:owner/repo.git or https://github.com/owner/repo.git
-powershell -NoProfile -Command "
-$u = '%RAW_REMOTE%';
-if ($u -match 'git@github\.com:(.+?)\.git') {
-    $target = 'https://github.com/' + $matches[1];
-} elseif ($u -match 'https://github\.com/(.+?)\.git') {
-    $target = 'https://github.com/' + $matches[1];
-} elseif ($u -match '^https?://') {
-    $target = $u;
-} else {
-    $target = 'https://github.com';
-}
-Write-Host ('Opening: ' + $target) -ForegroundColor Green;
-Start-Process $target;
-" 2>nul
+powershell -NoProfile -Command "$u = '%RAW_REMOTE%'; if ($u -match 'git@github\.com:(.+?)\.git') { $target = 'https://github.com/' + $matches[1] } elseif ($u -match 'https://github\.com/(.+?)\.git') { $target = 'https://github.com/' + $matches[1] } elseif ($u -match '^https?://') { $target = $u } else { $target = 'https://github.com' }; Write-Host ('Opening: ' + $target) -ForegroundColor Green; Start-Process $target" 2>nul
 
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -541,7 +571,5 @@ call :HEADER
 echo  !C_GREEN!Thank you for using DEV.!C_RESET!
 echo  !C_GRAY!Provider: AnoS ^| Developer Tools Suite!C_RESET!
 echo.
-echo  Press any key to close...
-pause >nul
 endlocal
 exit /b 0

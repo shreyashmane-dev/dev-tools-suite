@@ -328,8 +328,32 @@ echo    !C_CYAN![4]!C_RESET! Refresh Scan                     !C_CYAN![9]!C_RESE
 echo    !C_CYAN![5]!C_RESET! Diagnostics                      !C_RED![0]!C_RESET! Exit
 echo.
 
+set "EMPTY_COUNT=0"
+
+REM --- Direct CLI Argument Routing
+if not "%~1"=="" (
+    set "CHOICE=%~1"
+    if "%~1"=="1" goto :STANDARD_PACK
+    if "%~1"=="2" goto :CUSTOM_MENU
+    if "%~1"=="3" goto :PACKS_MENU
+    if "%~1"=="4" goto :REFRESH_MENU
+    if "%~1"=="5" goto :DIAGNOSTICS_MENU
+    if "%~1"=="6" goto :SYSTEM_INFO_MENU
+    if "%~1"=="7" goto :ANTIGRAVITY_MENU
+    if "%~1"=="8" goto :REPORT_MENU
+    if "%~1"=="9" goto :ABOUT_MENU
+    if "%~1"=="0" goto :EXIT
+)
+
 set "CHOICE="
 set /p "CHOICE=Select an option [0-9]: "
+if not defined CHOICE (
+    set /a EMPTY_COUNT+=1
+    if !EMPTY_COUNT! geq 3 goto :EXIT
+    goto :MAIN_MENU
+)
+set "EMPTY_COUNT=0"
+
 if "!CHOICE!"=="1" goto :STANDARD_PACK
 if "!CHOICE!"=="2" goto :CUSTOM_MENU
 if "!CHOICE!"=="3" goto :PACKS_MENU
@@ -729,9 +753,9 @@ if "!WINGET_OK!"=="1" (
 echo.
 echo  Administrator Access:
 if "!ADMIN_OK!"=="1" (
-    echo Yes (Elevated session)
+    echo Yes [Elevated session]
 ) else (
-    echo No (Standard user session)
+    echo No [Standard user session]
 )
 echo.
 pause
@@ -830,6 +854,7 @@ echo  * Clean 2-column Installed / Missing visual dashboard
 echo  * Automated skipping of pre-existing software
 echo  * Comprehensive diagnostics and local report generation
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -858,7 +883,5 @@ del /q "%CATALOG_CACHE%" >nul 2>&1
 echo  !C_GREEN!Thank you for using DEV.!C_RESET!
 echo  !C_GRAY!Provider: AnoS ^| Developer Tools Suite!C_RESET!
 echo.
-echo  Press any key to close...
-pause >nul
 endlocal
 exit /b 0

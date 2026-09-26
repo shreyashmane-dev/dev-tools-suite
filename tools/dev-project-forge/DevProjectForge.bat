@@ -34,6 +34,23 @@ if not defined DEFAULT_PROJECTS_DIR (
 )
 set "LAST_CREATED_PATH="
 
+set "EMPTY_COUNT=0"
+
+REM --- Direct CLI Argument Routing
+if not "%~1"=="" (
+    set "CHOICE=%~1"
+    if "%~1"=="1" goto :CREATE_PROJECT
+    if "%~1"=="2" goto :VIEW_TEMPLATES
+    if "%~1"=="3" goto :INIT_GIT_MENU
+    if "%~1"=="4" goto :CREATE_README_MENU
+    if "%~1"=="5" goto :CREATE_GITIGNORE_MENU
+    if "%~1"=="6" goto :CREATE_VENV_MENU
+    if "%~1"=="7" goto :OPEN_PROJECT_MENU
+    if "%~1"=="8" goto :PROJECT_INFO_MENU
+    if "%~1"=="9" goto :SETTINGS_MENU
+    if "%~1"=="0" goto :EXIT
+)
+
 goto :MAIN_MENU
 
 REM ------------------------------------------------------------
@@ -77,6 +94,13 @@ echo.
 
 set "CHOICE="
 set /p "CHOICE=Select an option [0-9]: "
+if not defined CHOICE (
+    set /a EMPTY_COUNT+=1
+    if !EMPTY_COUNT! geq 3 goto :EXIT
+    goto :MAIN_MENU
+)
+set "EMPTY_COUNT=0"
+
 if "!CHOICE!"=="1" goto :CREATE_PROJECT
 if "!CHOICE!"=="2" goto :VIEW_TEMPLATES
 if "!CHOICE!"=="3" goto :INIT_GIT_MENU
@@ -221,7 +245,7 @@ if /I "!ASK_OPEN!"=="Y" (
     if not errorlevel 1 (
         code "%FULL_PATH%"
     ) else (
-        echo [INFO] VS Code (code) command not found in PATH. Opening Explorer...
+        echo [INFO] VS Code [code] command not found in PATH. Opening Explorer...
         explorer "%FULL_PATH%"
     )
 )
@@ -783,6 +807,7 @@ echo  12. Java Gradle        : Gradle application plugin structure
 echo  13. Static Web         : Pure HTML5, modern CSS3, vanilla JavaScript
 echo  14. Generic Git        : Universal gitignore, README, docs directory
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -966,7 +991,7 @@ REM ------------------------------------------------------------
 :PROJECT_INFO_MENU
 cls
 call :HEADER
-echo  !C_WHITE!!C_BOLD!PROJECT INFORMATION & DIAGNOSTICS!C_RESET!
+echo  !C_WHITE!!C_BOLD!PROJECT INFORMATION ^& DIAGNOSTICS!C_RESET!
 echo  ----------------------------------------------------------------------
 set "INFO_DIR="
 set /p "INFO_DIR=Target project folder [Enter for current: %CD%]: "
@@ -996,6 +1021,7 @@ echo.
 echo  Directory Statistics:
 powershell -NoProfile -Command "$f=Get-ChildItem -LiteralPath '%INFO_DIR%' -Recurse -File -ErrorAction SilentlyContinue; $s=($f | Measure-Object -Property Length -Sum).Sum/1MB; Write-Host ('  Total Files: ' + $f.Count); Write-Host ('  Size on Disk: {0:N2} MB' -f $s)" 2>nul
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -1016,6 +1042,7 @@ if defined NEW_DIR (
     set "DEFAULT_PROJECTS_DIR=%NEW_DIR:"=%"
     echo !C_GREEN![OK] Default projects folder updated.!C_RESET!
 )
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -1028,7 +1055,5 @@ call :HEADER
 echo  !C_GREEN!Thank you for using DEV.!C_RESET!
 echo  !C_GRAY!Provider: AnoS ^| Developer Tools Suite!C_RESET!
 echo.
-echo  Press any key to close...
-pause >nul
 endlocal
 exit /b 0

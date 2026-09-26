@@ -28,6 +28,38 @@ set "APP_NAME=DEV System Toolkit"
 set "APP_VERSION=1.0.0"
 set "APP_PROVIDER=AnoS"
 set "REPORT_FILE=%~dp0Dev-System-Report.txt"
+set "EMPTY_COUNT=0"
+
+REM --- Direct CLI Argument Routing
+if not "%~1"=="" (
+    set "ARG_OPT=%~1"
+    if /I "!ARG_OPT!"=="1" goto :SYS_INFO
+    if /I "!ARG_OPT!"=="sysinfo" goto :SYS_INFO
+    if /I "!ARG_OPT!"=="2" goto :CPU_INFO
+    if /I "!ARG_OPT!"=="cpu" goto :CPU_INFO
+    if /I "!ARG_OPT!"=="3" goto :MEM_INFO
+    if /I "!ARG_OPT!"=="mem" goto :MEM_INFO
+    if /I "!ARG_OPT!"=="ram" goto :MEM_INFO
+    if /I "!ARG_OPT!"=="4" goto :STORAGE_INFO
+    if /I "!ARG_OPT!"=="storage" goto :STORAGE_INFO
+    if /I "!ARG_OPT!"=="disk" goto :STORAGE_INFO
+    if /I "!ARG_OPT!"=="5" goto :NET_INFO
+    if /I "!ARG_OPT!"=="net" goto :NET_INFO
+    if /I "!ARG_OPT!"=="6" goto :ENV_VARS
+    if /I "!ARG_OPT!"=="env" goto :ENV_VARS
+    if /I "!ARG_OPT!"=="7" goto :PATH_VIEWER
+    if /I "!ARG_OPT!"=="path" goto :PATH_VIEWER
+    if /I "!ARG_OPT!"=="8" goto :DEV_PROCESSES
+    if /I "!ARG_OPT!"=="procs" goto :DEV_PROCESSES
+    if /I "!ARG_OPT!"=="9" goto :DEV_PORTS
+    if /I "!ARG_OPT!"=="ports" goto :DEV_PORTS
+    if /I "!ARG_OPT!"=="10" goto :WT_TOOLS
+    if /I "!ARG_OPT!"=="wt" goto :WT_TOOLS
+    if /I "!ARG_OPT!"=="11" goto :SYS_REPORT
+    if /I "!ARG_OPT!"=="report" goto :SYS_REPORT
+    if /I "!ARG_OPT!"=="0" goto :EXIT
+    if /I "!ARG_OPT!"=="exit" goto :EXIT
+)
 
 goto :MAIN_MENU
 
@@ -56,11 +88,11 @@ REM ------------------------------------------------------------
 cls
 call :HEADER
 
-echo  !C_WHITE!SYSTEM HARDWARE & RUNTIME!C_RESET!
+echo  !C_WHITE!SYSTEM HARDWARE ^& RUNTIME!C_RESET!
 echo  Computer: !C_CYAN!%COMPUTERNAME%!C_RESET!   Architecture: !C_CYAN!%PROCESSOR_ARCHITECTURE%!C_RESET!
 echo.
 echo  !C_WHITE!MAIN MENU!C_RESET!
-echo    !C_CYAN![1]!C_RESET!  System Information            !C_CYAN![7]!C_RESET!  PATH Viewer & Health
+echo    !C_CYAN![1]!C_RESET!  System Information            !C_CYAN![7]!C_RESET!  PATH Viewer ^& Health
 echo    !C_CYAN![2]!C_RESET!  CPU Information               !C_CYAN![8]!C_RESET!  Developer Processes
 echo    !C_CYAN![3]!C_RESET!  Memory Information            !C_CYAN![9]!C_RESET!  Developer Ports (netstat)
 echo    !C_CYAN![4]!C_RESET!  Storage Information           !C_CYAN![10]!C_RESET! Windows Terminal Tools
@@ -70,6 +102,13 @@ echo.
 
 set "CHOICE="
 set /p "CHOICE=Select an option [0-11]: "
+if not defined CHOICE (
+    set /a "EMPTY_COUNT+=1"
+    if !EMPTY_COUNT! GEQ 3 goto :EXIT
+    goto :MAIN_MENU
+)
+set "EMPTY_COUNT=0"
+set "CHOICE=!CHOICE: =!"
 if "!CHOICE!"=="1" goto :SYS_INFO
 if "!CHOICE!"=="2" goto :CPU_INFO
 if "!CHOICE!"=="3" goto :MEM_INFO
@@ -97,25 +136,16 @@ echo  !C_WHITE!!C_BOLD!WINDOWS OPERATING SYSTEM OVERVIEW!C_RESET!
 echo  ----------------------------------------------------------------------
 cmd /c ver
 echo.
-powershell -NoProfile -Command "
-$os = Get-CimInstance Win32_OperatingSystem;
-$cs = Get-CimInstance Win32_ComputerSystem;
-$uptime = (Get-Date) - $os.LastBootUpTime;
-Write-Host ('  OS Edition      : ' + $os.Caption);
-Write-Host ('  OS Version      : ' + $os.Version + ' (Build ' + $os.BuildNumber + ')');
-Write-Host ('  System Model    : ' + $cs.Manufacturer + ' ' + $cs.Model);
-Write-Host ('  System Type     : ' + $cs.SystemType);
-Write-Host ('  System Uptime   : ' + [int]$uptime.TotalDays + ' days, ' + $uptime.Hours + ' hours, ' + $uptime.Minutes + ' mins');
-Write-Host ('  Registered User : ' + $os.RegisteredUser);
-" 2>nul
+powershell -NoProfile -Command "$os = Get-CimInstance Win32_OperatingSystem; $cs = Get-CimInstance Win32_ComputerSystem; $uptime = (Get-Date) - $os.LastBootUpTime; Write-Host ('  OS Edition      : ' + $os.Caption); Write-Host ('  OS Version      : ' + $os.Version + ' [Build ' + $os.BuildNumber + ']'); Write-Host ('  System Model    : ' + $cs.Manufacturer + ' ' + $cs.Model); Write-Host ('  System Type     : ' + $cs.SystemType); Write-Host ('  System Uptime   : ' + [int]$uptime.TotalDays + ' days, ' + $uptime.Hours + ' hours, ' + $uptime.Minutes + ' mins'); Write-Host ('  Registered User : ' + $os.RegisteredUser)" 2>nul
 echo.
 net session >nul 2>&1
 if not errorlevel 1 (
-    echo   Elevated Privileges: !C_GREEN!Yes (Administrator)!C_RESET!
+    echo   Elevated Privileges: !C_GREEN!Yes [Administrator]!C_RESET!
 ) else (
-    echo   Elevated Privileges: !C_CYAN!No (Standard User)!C_RESET!
+    echo   Elevated Privileges: !C_CYAN!No [Standard User]!C_RESET!
 )
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -127,16 +157,9 @@ cls
 call :HEADER
 echo  !C_WHITE!!C_BOLD!PROCESSOR (CPU) DETAILS!C_RESET!
 echo  ----------------------------------------------------------------------
-powershell -NoProfile -Command "
-$cpu = Get-CimInstance Win32_Processor | Select-Object -First 1;
-Write-Host ('  Model            : ' + $cpu.Name);
-Write-Host ('  Cores            : ' + $cpu.NumberOfCores);
-Write-Host ('  Logical Threads  : ' + $cpu.NumberOfLogicalProcessors);
-Write-Host ('  Base Clock Speed : ' + $cpu.MaxClockSpeed + ' MHz');
-Write-Host ('  Socket / Type    : ' + $cpu.SocketDesignation);
-Write-Host ('  Virtualization   : ' + $(if ($cpu.VirtualizationFirmwareEnabled) { 'Enabled' } else { 'Disabled or Unknown' }));
-" 2>nul
+powershell -NoProfile -Command "$cpu = Get-CimInstance Win32_Processor | Select-Object -First 1; Write-Host ('  Model            : ' + $cpu.Name); Write-Host ('  Cores            : ' + $cpu.NumberOfCores); Write-Host ('  Logical Threads  : ' + $cpu.NumberOfLogicalProcessors); Write-Host ('  Base Clock Speed : ' + $cpu.MaxClockSpeed + ' MHz'); Write-Host ('  Socket / Type    : ' + $cpu.SocketDesignation); Write-Host ('  Virtualization   : ' + $(if ($cpu.VirtualizationFirmwareEnabled) { 'Enabled' } else { 'Disabled or Unknown' }))" 2>nul
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -148,22 +171,9 @@ cls
 call :HEADER
 echo  !C_WHITE!!C_BOLD!MEMORY (RAM) STATUS!C_RESET!
 echo  ----------------------------------------------------------------------
-powershell -NoProfile -Command "
-$os = Get-CimInstance Win32_OperatingSystem;
-$total = [math]::Round($os.TotalVisibleMemorySize / 1MB, 2);
-$free = [math]::Round($os.FreePhysicalMemory / 1MB, 2);
-$used = [math]::Round($total - $free, 2);
-$pct = [math]::Round(($used / $total) * 100, 1);
-Write-Host ('  Total Physical RAM : ' + $total + ' GB');
-Write-Host ('  Used RAM           : ' + $used + ' GB (' + $pct + '%)');
-Write-Host ('  Available Free RAM : ' + $free + ' GB');
-Write-Host '';
-$swapTotal = [math]::Round($os.TotalVirtualMemorySize / 1MB, 2);
-$swapFree = [math]::Round($os.FreeVirtualMemory / 1MB, 2);
-Write-Host ('  Total Virtual/Page : ' + $swapTotal + ' GB');
-Write-Host ('  Free Virtual Memory: ' + $swapFree + ' GB');
-" 2>nul
+powershell -NoProfile -Command "$os = Get-CimInstance Win32_OperatingSystem; $total = [math]::Round($os.TotalVisibleMemorySize / 1MB, 2); $free = [math]::Round($os.FreePhysicalMemory / 1MB, 2); $used = [math]::Round($total - $free, 2); $pct = [math]::Round(($used / $total) * 100, 1); Write-Host ('  Total Physical RAM : ' + $total + ' GB'); Write-Host ('  Used RAM           : ' + $used + ' GB [' + $pct + '%%]'); Write-Host ('  Available Free RAM : ' + $free + ' GB'); Write-Host ''; $swapTotal = [math]::Round($os.TotalVirtualMemorySize / 1MB, 2); $swapFree = [math]::Round($os.FreeVirtualMemory / 1MB, 2); Write-Host ('  Total Virtual/Page : ' + $swapTotal + ' GB'); Write-Host ('  Free Virtual Memory: ' + $swapFree + ' GB')" 2>nul
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -173,20 +183,11 @@ REM ------------------------------------------------------------
 :STORAGE_INFO
 cls
 call :HEADER
-echo  !C_WHITE!!C_BOLD!STORAGE DRIVES & FREE SPACE!C_RESET!
+echo  !C_WHITE!!C_BOLD!STORAGE DRIVES ^& FREE SPACE!C_RESET!
 echo  ----------------------------------------------------------------------
-powershell -NoProfile -Command "
-$drives = Get-CimInstance Win32_LogicalDisk | Where-Object { $_.DriveType -eq 3 };
-foreach ($d in $drives) {
-    $totalGB = [math]::Round($d.Size / 1GB, 1);
-    $freeGB = [math]::Round($d.FreeSpace / 1GB, 1);
-    $usedGB = [math]::Round($totalGB - $freeGB, 1);
-    $pctFree = [math]::Round(($freeGB / $totalGB) * 100, 1);
-    Write-Host ('  Drive ' + $d.DeviceID + ' [' + $d.FileSystem + ']  ' + $(if ($d.VolumeName) { $d.VolumeName } else { 'Local Disk' }));
-    Write-Host ('    Total: ' + $totalGB + ' GB | Used: ' + $usedGB + ' GB | Free: ' + $freeGB + ' GB (' + $pctFree + '% Free)');
-}
-" 2>nul
+powershell -NoProfile -Command "$drives = Get-CimInstance Win32_LogicalDisk | Where-Object { $_.DriveType -eq 3 }; foreach ($d in $drives) { $totalGB = [math]::Round($d.Size / 1GB, 1); $freeGB = [math]::Round($d.FreeSpace / 1GB, 1); $usedGB = [math]::Round($totalGB - $freeGB, 1); $pctFree = [math]::Round(($freeGB / $totalGB) * 100, 1); Write-Host ('  Drive ' + $d.DeviceID + ' [' + $d.FileSystem + ']  ' + $(if ($d.VolumeName) { $d.VolumeName } else { 'Local Disk' })); Write-Host ('    Total: ' + $totalGB + ' GB | Used: ' + $usedGB + ' GB | Free: ' + $freeGB + ' GB [' + $pctFree + '%% Free]') }" 2>nul
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -196,25 +197,11 @@ REM ------------------------------------------------------------
 :NET_INFO
 cls
 call :HEADER
-echo  !C_WHITE!!C_BOLD!NETWORK ADAPTERS & IP CONFIGURATION!C_RESET!
+echo  !C_WHITE!!C_BOLD!NETWORK ADAPTERS ^& IP CONFIGURATION!C_RESET!
 echo  ----------------------------------------------------------------------
-powershell -NoProfile -Command "
-$adapters = Get-CimInstance Win32_NetworkAdapterConfiguration | Where-Object { $_.IPEnabled -eq $true };
-foreach ($a in $adapters) {
-    Write-Host ('  Adapter     : ' + $a.Description) -ForegroundColor Cyan;
-    Write-Host ('  IPv4 Address: ' + ($a.IPAddress -join ', '));
-    Write-Host ('  Gateway     : ' + ($a.DefaultIPGateway -join ', '));
-    Write-Host ('  DNS Servers : ' + ($a.DNSServerSearchOrder -join ', '));
-    Write-Host '';
-}
-$ping = Test-Connection -ComputerName 1.1.1.1 -Count 1 -Quiet -ErrorAction SilentlyContinue;
-if ($ping) {
-    Write-Host '  Internet Connectivity : [ONLINE]' -ForegroundColor Green;
-} else {
-    Write-Host '  Internet Connectivity : [OFFLINE / UNREACHABLE]' -ForegroundColor Red;
-}
-" 2>nul
+powershell -NoProfile -Command "$adapters = Get-CimInstance Win32_NetworkAdapterConfiguration | Where-Object { $_.IPEnabled -eq $true }; foreach ($a in $adapters) { Write-Host ('  Adapter     : ' + $a.Description) -ForegroundColor Cyan; Write-Host ('  IPv4 Address: ' + ($a.IPAddress -join ', ')); Write-Host ('  Gateway     : ' + ($a.DefaultIPGateway -join ', ')); Write-Host ('  DNS Servers : ' + ($a.DNSServerSearchOrder -join ', ')); Write-Host '' }; $ping = Test-Connection -ComputerName 1.1.1.1 -Count 1 -Quiet -ErrorAction SilentlyContinue; if ($ping) { Write-Host '  Internet Connectivity : [ONLINE]' -ForegroundColor Green } else { Write-Host '  Internet Connectivity : [OFFLINE / UNREACHABLE]' -ForegroundColor Red }" 2>nul
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -226,9 +213,15 @@ cls
 call :HEADER
 echo  !C_WHITE!!C_BOLD!ENVIRONMENT VARIABLES INSPECTOR!C_RESET!
 echo  ----------------------------------------------------------------------
-echo  Filter variable name [Press Enter to show standard dev variables]:
 set "VAR_QUERY="
-set /p "VAR_QUERY=Filter: "
+if not "%~2"=="" (
+    set "VAR_QUERY=%~2"
+) else (
+    if "%~1"=="" (
+        echo  Filter variable name [Press Enter to show standard dev variables]:
+        set /p "VAR_QUERY=Filter: "
+    )
+)
 
 if defined VAR_QUERY (
     set | findstr /I "%VAR_QUERY%"
@@ -244,6 +237,7 @@ if defined VAR_QUERY (
     )
 )
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -253,22 +247,11 @@ REM ------------------------------------------------------------
 :PATH_VIEWER
 cls
 call :HEADER
-echo  !C_WHITE!!C_BOLD!PATH VIEWER & INTEGRITY CHECK!C_RESET!
+echo  !C_WHITE!!C_BOLD!PATH VIEWER ^& INTEGRITY CHECK!C_RESET!
 echo  ----------------------------------------------------------------------
-powershell -NoProfile -Command "
-$entries = $env:Path -split ';' | Where-Object { $_ -match '\S' };
-$idx = 1;
-foreach ($entry in $entries) {
-    $clean = $entry.Trim('\"').Trim();
-    if (Test-Path -LiteralPath $clean) {
-        Write-Host ('  [{0:D2}] [OK]    {1}' -f $idx, $clean) -ForegroundColor Green;
-    } else {
-        Write-Host ('  [{0:D2}] [MISS]  {1}' -f $idx, $clean) -ForegroundColor Yellow;
-    }
-    $idx++;
-}
-" 2>nul
+powershell -NoProfile -Command "$entries = $env:Path -split ';' | Where-Object { $_ -match '\S' }; $idx = 1; foreach ($entry in $entries) { $clean = $entry.Trim().Trim([char]34); if (Test-Path -LiteralPath $clean) { Write-Host ('  [{0:D2}] [OK]    {1}' -f $idx, $clean) -ForegroundColor Green } else { Write-Host ('  [{0:D2}] [MISS]  {1}' -f $idx, $clean) -ForegroundColor Yellow }; $idx++ }" 2>nul
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -280,16 +263,9 @@ cls
 call :HEADER
 echo  !C_WHITE!!C_BOLD!ACTIVE DEVELOPER PROCESSES!C_RESET!
 echo  ----------------------------------------------------------------------
-powershell -NoProfile -Command "
-$devProcs = @('node','python','py','java','code','git','docker','mongod','postgres','mysqld','dotnet','cargo','rustc','pwsh','WindowsTerminal');
-$found = Get-Process -ErrorAction SilentlyContinue | Where-Object { $devProcs -contains $_.ProcessName };
-if ($found) {
-    $found | Select-Object Id, ProcessName, @{Name='WorkingSetMB';Expression={[math]::Round($_.WorkingSet64/1MB,1)}}, Path | Format-Table -AutoSize;
-} else {
-    Write-Host '  No standard developer processes currently active.' -ForegroundColor Gray;
-}
-" 2>nul
+powershell -NoProfile -Command "$devProcs = @('node','python','py','java','code','git','docker','mongod','postgres','mysqld','dotnet','cargo','rustc','pwsh','WindowsTerminal'); $found = Get-Process -ErrorAction SilentlyContinue | Where-Object { $devProcs -contains $_.ProcessName }; if ($found) { $found | Select-Object Id, ProcessName, @{Name='WorkingSetMB';Expression={[math]::Round($_.WorkingSet64/1MB,1)}}, Path | Format-Table -AutoSize } else { Write-Host '  No standard developer processes currently active.' -ForegroundColor Gray }" 2>nul
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -303,28 +279,9 @@ echo  !C_WHITE!!C_BOLD!COMMON DEVELOPER LISTENING PORTS!C_RESET!
 echo  ----------------------------------------------------------------------
 echo  Scanning 3000, 3001, 4200, 5000, 5173, 8000, 8080, 8443, 9000, 5432, 27017, 3306, 6379...
 echo.
-powershell -NoProfile -Command "
-$ports = @(3000, 3001, 4200, 5000, 5173, 8000, 8080, 8443, 9000, 27017, 5432, 3306, 6379, 1433);
-$lines = netstat -ano | Where-Object { $_ -match 'LISTENING' };
-$detected = 0;
-foreach ($p in $ports) {
-    $match = $lines | Where-Object { $_ -match (':0*' + $p + '\s+') };
-    if ($match) {
-        $detected++;
-        foreach ($m in $match) {
-            $tokens = $m.Trim() -split '\s+';
-            $pidVal = $tokens[-1];
-            $procName = 'Unknown';
-            try { $procName = (Get-Process -Id $pidVal -ErrorAction SilentlyContinue).ProcessName } catch {}
-            Write-Host ('  Port ' + $p + ' [LISTENING] -> PID: ' + $pidVal + ' (' + $procName + ')') -ForegroundColor Green;
-        }
-    }
-}
-if ($detected -eq 0) {
-    Write-Host '  No developer server ports currently listening.' -ForegroundColor Gray;
-}
-" 2>nul
+powershell -NoProfile -Command "$ports = @(3000, 3001, 4200, 5000, 5173, 8000, 8080, 8443, 9000, 27017, 5432, 3306, 6379, 1433); $lines = netstat -ano | Where-Object { $_ -match 'LISTENING' }; $detected = 0; foreach ($p in $ports) { $match = $lines | Where-Object { $_ -match (':0*' + $p + '\s+') }; if ($match) { $detected++; foreach ($m in $match) { $tokens = $m.Trim() -split '\s+'; $pidVal = $tokens[-1]; $procName = 'Unknown'; try { $procName = (Get-Process -Id $pidVal -ErrorAction SilentlyContinue).ProcessName } catch {}; Write-Host ('  Port ' + $p + ' [LISTENING] -> PID: ' + $pidVal + ' [' + $procName + ']') -ForegroundColor Green } } }; if ($detected -eq 0) { Write-Host '  No developer server ports currently listening.' -ForegroundColor Gray }" 2>nul
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -334,7 +291,7 @@ REM ------------------------------------------------------------
 :WT_TOOLS
 cls
 call :HEADER
-echo  !C_WHITE!!C_BOLD!WINDOWS TERMINAL & SYSTEM UTILITIES!C_RESET!
+echo  !C_WHITE!!C_BOLD!WINDOWS TERMINAL ^& SYSTEM UTILITIES!C_RESET!
 echo  ----------------------------------------------------------------------
 echo    !C_CYAN![1]!C_RESET! Flush DNS Cache (ipconfig /flushdns)
 echo    !C_CYAN![2]!C_RESET! Check WSL Linux Distributions (wsl -l -v)
@@ -368,6 +325,7 @@ if "!WT_ACT!"=="4" (
     )
 )
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -390,7 +348,7 @@ echo  Writing comprehensive system report to file...
 >>"%REPORT_FILE%" echo SYSTEM SUMMARY:
 cmd /c ver >>"%REPORT_FILE%"
 >>"%REPORT_FILE%" echo.
->>"%REPORT_FILE%" echo CPU & HARDWARE:
+>>"%REPORT_FILE%" echo CPU ^& HARDWARE:
 powershell -NoProfile -Command "(Get-CimInstance Win32_Processor | Select-Object -First 1).Name" >>"%REPORT_FILE%" 2>nul
 powershell -NoProfile -Command "$m=(Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory/1GB; 'RAM: {0:N1} GB' -f $m" >>"%REPORT_FILE%" 2>nul
 >>"%REPORT_FILE%" echo.
@@ -406,6 +364,7 @@ echo.
 echo  !C_GREEN![OK]!C_RESET! System report successfully saved to:
 echo  !C_CYAN!%REPORT_FILE%!C_RESET!
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -418,7 +377,5 @@ call :HEADER
 echo  !C_GREEN!Thank you for using DEV.!C_RESET!
 echo  !C_GRAY!Provider: AnoS ^| Developer Tools Suite!C_RESET!
 echo.
-echo  Press any key to close...
-pause >nul
 endlocal
 exit /b 0

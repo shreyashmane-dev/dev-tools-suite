@@ -28,6 +28,37 @@ set "APP_NAME=DEV Doctor"
 set "APP_VERSION=1.0.0"
 set "APP_PROVIDER=AnoS"
 set "REPORT_FILE=%~dp0Dev-Doctor-Report.txt"
+set "EMPTY_COUNT=0"
+
+REM --- Direct CLI Argument Routing
+if not "%~1"=="" (
+    set "ARG_OPT=%~1"
+    if /I "!ARG_OPT!"=="1" goto :DIAG_FULL
+    if /I "!ARG_OPT!"=="full" goto :DIAG_FULL
+    if /I "!ARG_OPT!"=="all" goto :DIAG_FULL
+    if /I "!ARG_OPT!"=="2" goto :DIAG_GIT
+    if /I "!ARG_OPT!"=="git" goto :DIAG_GIT
+    if /I "!ARG_OPT!"=="3" goto :DIAG_PYTHON
+    if /I "!ARG_OPT!"=="python" goto :DIAG_PYTHON
+    if /I "!ARG_OPT!"=="4" goto :DIAG_NODE
+    if /I "!ARG_OPT!"=="node" goto :DIAG_NODE
+    if /I "!ARG_OPT!"=="5" goto :DIAG_JAVA
+    if /I "!ARG_OPT!"=="java" goto :DIAG_JAVA
+    if /I "!ARG_OPT!"=="6" goto :DIAG_CPP
+    if /I "!ARG_OPT!"=="cpp" goto :DIAG_CPP
+    if /I "!ARG_OPT!"=="7" goto :DIAG_DOCKER
+    if /I "!ARG_OPT!"=="docker" goto :DIAG_DOCKER
+    if /I "!ARG_OPT!"=="8" goto :DIAG_WINGET
+    if /I "!ARG_OPT!"=="winget" goto :DIAG_WINGET
+    if /I "!ARG_OPT!"=="9" goto :DIAG_PATH
+    if /I "!ARG_OPT!"=="path" goto :DIAG_PATH
+    if /I "!ARG_OPT!"=="10" goto :DIAG_ENV
+    if /I "!ARG_OPT!"=="env" goto :DIAG_ENV
+    if /I "!ARG_OPT!"=="11" goto :DIAG_REPORT
+    if /I "!ARG_OPT!"=="report" goto :DIAG_REPORT
+    if /I "!ARG_OPT!"=="0" goto :EXIT
+    if /I "!ARG_OPT!"=="exit" goto :EXIT
+)
 
 goto :MAIN_MENU
 
@@ -70,6 +101,13 @@ echo.
 
 set "CHOICE="
 set /p "CHOICE=Select an option [0-11]: "
+if not defined CHOICE (
+    set /a "EMPTY_COUNT+=1"
+    if !EMPTY_COUNT! GEQ 3 goto :EXIT
+    goto :MAIN_MENU
+)
+set "EMPTY_COUNT=0"
+set "CHOICE=!CHOICE: =!"
 if "!CHOICE!"=="1" goto :DIAG_FULL
 if "!CHOICE!"=="2" goto :DIAG_GIT
 if "!CHOICE!"=="3" goto :DIAG_PYTHON
@@ -97,7 +135,7 @@ echo  !C_WHITE!!C_BOLD!STARTING FULL DEVELOPER ENVIRONMENT DIAGNOSIS...!C_RESET!
 echo  ======================================================================
 echo.
 
-echo  !C_WHITE![SYSTEM & OS IDENTITY]!C_RESET!
+echo  !C_WHITE![SYSTEM ^& OS IDENTITY]!C_RESET!
 cmd /c ver
 echo  Architecture: %PROCESSOR_ARCHITECTURE%   Computer: %COMPUTERNAME%
 net session >nul 2>&1
@@ -108,7 +146,7 @@ if not errorlevel 1 (
 )
 echo.
 
-echo  !C_WHITE![1/8] Git & Version Control!C_RESET!
+echo  !C_WHITE![1/8] Git ^& Version Control!C_RESET!
 call :SUB_GIT
 echo.
 
@@ -116,11 +154,11 @@ echo  !C_WHITE![2/8] Python Ecosystem!C_RESET!
 call :SUB_PYTHON
 echo.
 
-echo  !C_WHITE![3/8] Node.js & JavaScript!C_RESET!
+echo  !C_WHITE![3/8] Node.js ^& JavaScript!C_RESET!
 call :SUB_NODE
 echo.
 
-echo  !C_WHITE![4/8] Java Runtime & JDK!C_RESET!
+echo  !C_WHITE![4/8] Java Runtime ^& JDK!C_RESET!
 call :SUB_JAVA
 echo.
 
@@ -128,7 +166,7 @@ echo  !C_WHITE![5/8] C / C++ Toolchains!C_RESET!
 call :SUB_CPP
 echo.
 
-echo  !C_WHITE![6/8] Docker & Containers!C_RESET!
+echo  !C_WHITE![6/8] Docker ^& Containers!C_RESET!
 call :SUB_DOCKER
 echo.
 
@@ -141,6 +179,7 @@ call :SUB_PATH_BRIEF
 echo.
 echo  ======================================================================
 echo  !C_GREEN!Full diagnosis completed.!C_RESET!
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -154,6 +193,7 @@ echo  !C_WHITE!!C_BOLD!GIT ENVIRONMENT CHECK!C_RESET!
 echo  ----------------------------------------------------------------------
 call :SUB_GIT
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -181,7 +221,7 @@ if not errorlevel 1 (
         goto :END_SUB_GIT
     )
 ) else (
-    echo    !C_CYAN![INFO]!C_RESET! GitHub CLI (gh) is optional and not currently installed.
+    echo    !C_CYAN![INFO]!C_RESET! GitHub CLI [gh] is optional and not currently installed.
 )
 :END_SUB_GIT
 exit /b
@@ -196,38 +236,42 @@ echo  !C_WHITE!!C_BOLD!PYTHON ENVIRONMENT CHECK!C_RESET!
 echo  ----------------------------------------------------------------------
 call :SUB_PYTHON
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
 :SUB_PYTHON
 set "PY_FOUND=0"
 where python >nul 2>&1
-if not errorlevel 1 (
-    set "PY_FOUND=1"
-    for /f "delims=" %%I in ('where python 2^>nul') do set "PY_LOC=%%I"
-    echo    !C_GREEN![OK]!C_RESET!   Binary  : !PY_LOC!
-    for /f "delims=" %%V in ('python --version 2^>&1') do echo    !C_GREEN![OK]!C_RESET!   Version : %%V
-)
-if "!PY_FOUND!"=="0" (
-    where py >nul 2>&1
-    if not errorlevel 1 (
-        set "PY_FOUND=1"
-        for /f "delims=" %%V in ('py --version 2^>&1') do echo    !C_GREEN![OK]!C_RESET!   Python Launcher: %%V
-    )
-)
-if "!PY_FOUND!"=="0" (
-    echo    !C_CYAN![INFO]!C_RESET! Python is not installed.
-    exit /b
-)
+if errorlevel 1 goto :CHECK_PY_LAUNCHER
+set "PY_FOUND=1"
+for /f "delims=" %%I in ('where python 2^>nul') do set "PY_LOC=%%I"
+echo    !C_GREEN![OK]!C_RESET!   Binary  : !PY_LOC!
+for /f "delims=" %%V in ('python --version 2^>nul') do echo    !C_GREEN![OK]!C_RESET!   Version : %%V
+goto :CHECK_PIP
+
+:CHECK_PY_LAUNCHER
+where py >nul 2>&1
+if errorlevel 1 goto :NO_PYTHON
+set "PY_FOUND=1"
+for /f "delims=" %%V in ('py --version 2^>nul') do echo    !C_GREEN![OK]!C_RESET!   Python Launcher: %%V
+
+:CHECK_PIP
 where pip >nul 2>&1
-if not errorlevel 1 (
-    for /f "delims=" %%V in ('pip --version 2^>nul') do echo    !C_GREEN![OK]!C_RESET!   Pip     : %%V
-) else (
-    echo    !C_YELLOW![WARN]!C_RESET! pip command not found in active PATH.
-)
-if defined PYTHONPATH (
-    echo    !C_CYAN![INFO]!C_RESET! PYTHONPATH: %PYTHONPATH%
-)
+if errorlevel 1 goto :NO_PIP
+for /f "delims=" %%V in ('pip --version 2^>nul') do echo    !C_GREEN![OK]!C_RESET!   Pip     : %%V
+goto :CHECK_PYPATH
+
+:NO_PIP
+echo    !C_YELLOW![WARN]!C_RESET! pip command not found in active PATH.
+goto :CHECK_PYPATH
+
+:NO_PYTHON
+echo    !C_CYAN![INFO]!C_RESET! Python is not installed.
+exit /b
+
+:CHECK_PYPATH
+if defined PYTHONPATH echo    !C_CYAN![INFO]!C_RESET! PYTHONPATH: %PYTHONPATH%
 exit /b
 
 REM ------------------------------------------------------------
@@ -236,10 +280,11 @@ REM ------------------------------------------------------------
 :DIAG_NODE
 cls
 call :HEADER
-echo  !C_WHITE!!C_BOLD!NODE.JS & JAVASCRIPT CHECK!C_RESET!
+echo  !C_WHITE!!C_BOLD!NODE.JS ^& JAVASCRIPT CHECK!C_RESET!
 echo  ----------------------------------------------------------------------
 call :SUB_NODE
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -271,6 +316,7 @@ echo  !C_WHITE!!C_BOLD!JAVA ENVIRONMENT CHECK!C_RESET!
 echo  ----------------------------------------------------------------------
 call :SUB_JAVA
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -282,7 +328,7 @@ if errorlevel 1 (
 )
 for /f "delims=" %%I in ('where java 2^>nul') do set "JAVA_LOC=%%I"
 echo    !C_GREEN![OK]!C_RESET!   Binary  : !JAVA_LOC!
-for /f "tokens=*" %%V in ('java -version 2^>&1') do (
+for /f "tokens=*" %%V in ('java -version 2^>^&1') do (
     echo    !C_GREEN![OK]!C_RESET!   %%V
     goto :CHECK_JAVA_HOME
 )
@@ -308,10 +354,11 @@ REM ------------------------------------------------------------
 :DIAG_CPP
 cls
 call :HEADER
-echo  !C_WHITE!!C_BOLD!C / C++ COMPILERS & BUILD TOOLS CHECK!C_RESET!
+echo  !C_WHITE!!C_BOLD!C / C++ COMPILERS ^& BUILD TOOLS CHECK!C_RESET!
 echo  ----------------------------------------------------------------------
 call :SUB_CPP
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -321,7 +368,7 @@ set "HAS_COMPILER=0"
 where cl >nul 2>&1
 if not errorlevel 1 (
     set "HAS_COMPILER=1"
-    echo    !C_GREEN![OK]!C_RESET!   MSVC Compiler (cl.exe) is in active PATH.
+    echo    !C_GREEN![OK]!C_RESET!   MSVC Compiler [cl.exe] is in active PATH.
 )
 if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" (
     for /f "delims=" %%V in ('"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath 2^>nul') do (
@@ -331,32 +378,32 @@ if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" (
 )
 
 where gcc >nul 2>&1
-if not errorlevel 1 (
-    set "HAS_COMPILER=1"
-    for /f "delims=" %%V in ('gcc --version 2^>nul') do (
-        echo    !C_GREEN![OK]!C_RESET!   GCC: %%V
-        goto :CHECK_CMAKE
-    )
+if errorlevel 1 goto :CHECK_CLANG
+set "HAS_COMPILER=1"
+for /f "delims=" %%V in ('gcc --version 2^>nul') do (
+    echo    !C_GREEN![OK]!C_RESET!   GCC: %%V
+    goto :CHECK_CMAKE
 )
+
+:CHECK_CLANG
 where clang >nul 2>&1
-if not errorlevel 1 (
-    set "HAS_COMPILER=1"
-    for /f "delims=" %%V in ('clang --version 2^>nul') do (
-        echo    !C_GREEN![OK]!C_RESET!   Clang: %%V
-        goto :CHECK_CMAKE
-    )
+if errorlevel 1 goto :CHECK_CMAKE
+set "HAS_COMPILER=1"
+for /f "delims=" %%V in ('clang --version 2^>nul') do (
+    echo    !C_GREEN![OK]!C_RESET!   Clang: %%V
+    goto :CHECK_CMAKE
 )
 
 :CHECK_CMAKE
 where cmake >nul 2>&1
-if not errorlevel 1 (
-    for /f "delims=" %%V in ('cmake --version 2^>nul') do (
-        echo    !C_GREEN![OK]!C_RESET!   CMake: %%V
-        goto :AFTER_CPP
-    )
-) else (
-    echo    !C_CYAN![INFO]!C_RESET! CMake is not installed.
+if errorlevel 1 goto :NO_CMAKE
+for /f "delims=" %%V in ('cmake --version 2^>nul') do (
+    echo    !C_GREEN![OK]!C_RESET!   CMake: %%V
+    goto :AFTER_CPP
 )
+
+:NO_CMAKE
+echo    !C_CYAN![INFO]!C_RESET! CMake is not installed.
 
 :AFTER_CPP
 if "!HAS_COMPILER!"=="0" (
@@ -370,17 +417,18 @@ REM ------------------------------------------------------------
 :DIAG_DOCKER
 cls
 call :HEADER
-echo  !C_WHITE!!C_BOLD!DOCKER & CONTAINER CHECK!C_RESET!
+echo  !C_WHITE!!C_BOLD!DOCKER ^& CONTAINER CHECK!C_RESET!
 echo  ----------------------------------------------------------------------
 call :SUB_DOCKER
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
 :SUB_DOCKER
 where docker >nul 2>&1
 if errorlevel 1 (
-    echo    !C_CYAN![INFO]!C_RESET! Docker Desktop / CLI is not installed (optional).
+    echo    !C_CYAN![INFO]!C_RESET! Docker Desktop / CLI is not installed [optional].
     exit /b
 )
 for /f "delims=" %%I in ('where docker 2^>nul') do set "DOCK_LOC=%%I"
@@ -405,6 +453,7 @@ echo  !C_WHITE!!C_BOLD!WINDOWS PACKAGE MANAGER (WINGET) CHECK!C_RESET!
 echo  ----------------------------------------------------------------------
 call :SUB_WINGET
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -428,49 +477,14 @@ cls
 call :HEADER
 echo  !C_WHITE!!C_BOLD!SYSTEM PATH HEALTH CHECK!C_RESET!
 echo  ----------------------------------------------------------------------
-powershell -NoProfile -Command "
-$raw = [Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' + [Environment]::GetEnvironmentVariable('Path', 'User');
-$paths = $raw -split ';' | Where-Object { $_ -match '\S' };
-$seen = @{};
-$valid = 0; $missing = 0; $dupes = 0;
-foreach ($p in $paths) {
-    $clean = $p.Trim('\"').Trim();
-    if ($seen.ContainsKey($clean.ToLower())) {
-        Write-Host ('  [WARN] Duplicate entry: ' + $clean) -ForegroundColor Yellow;
-        $dupes++;
-        continue;
-    }
-    $seen[$clean.ToLower()] = $true;
-    if (Test-Path -LiteralPath $clean) {
-        Write-Host ('  [OK]   ' + $clean) -ForegroundColor Green;
-        $valid++;
-    } else {
-        Write-Host ('  [FAIL] Directory not found: ' + $clean) -ForegroundColor Red;
-        $missing++;
-    }
-}
-Write-Host '';
-Write-Host ('  Summary: ' + $valid + ' Valid, ' + $missing + ' Missing/Broken, ' + $dupes + ' Duplicates.');
-" 2>nul
+powershell -NoProfile -Command "$raw = [Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' + [Environment]::GetEnvironmentVariable('Path', 'User'); $paths = $raw -split ';' | Where-Object { $_ -match '\S' }; $seen = @{}; $valid = 0; $missing = 0; $dupes = 0; foreach ($p in $paths) { $clean = $p.Trim().Trim([char]34); if ($seen.ContainsKey($clean.ToLower())) { Write-Host ('  [WARN] Duplicate entry: ' + $clean) -ForegroundColor Yellow; $dupes++; continue }; $seen[$clean.ToLower()] = $true; if (Test-Path -LiteralPath $clean) { Write-Host ('  [OK]   ' + $clean) -ForegroundColor Green; $valid++ } else { Write-Host ('  [FAIL] Directory not found: ' + $clean) -ForegroundColor Red; $missing++ } }; Write-Host ''; Write-Host ('  Summary: ' + $valid + ' Valid, ' + $missing + ' Missing/Broken, ' + $dupes + ' Duplicates.')" 2>nul
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
 :SUB_PATH_BRIEF
-powershell -NoProfile -Command "
-$raw = $env:Path;
-$paths = $raw -split ';' | Where-Object { $_ -match '\S' };
-$valid = 0; $missing = 0;
-foreach ($p in $paths) {
-    $clean = $p.Trim('\"').Trim();
-    if (Test-Path -LiteralPath $clean) { $valid++ } else { $missing++ }
-}
-if ($missing -eq 0) {
-    Write-Host ('    [OK] PATH contains ' + $valid + ' active valid entries, 0 broken.') -ForegroundColor Green;
-} else {
-    Write-Host ('    [WARN] PATH contains ' + $missing + ' missing/broken directory entries.') -ForegroundColor Yellow;
-}
-" 2>nul
+powershell -NoProfile -Command "$raw = $env:Path; $paths = $raw -split ';' | Where-Object { $_ -match '\S' }; $valid = 0; $missing = 0; foreach ($p in $paths) { $clean = $p.Trim().Trim([char]34); if (Test-Path -LiteralPath $clean) { $valid++ } else { $missing++ } }; if ($missing -eq 0) { Write-Host ('    [OK] PATH contains ' + $valid + ' active valid entries, 0 broken.') -ForegroundColor Green } else { Write-Host ('    [WARN] PATH contains ' + $missing + ' missing/broken directory entries.') -ForegroundColor Yellow }" 2>nul
 exit /b
 
 REM ------------------------------------------------------------
@@ -494,6 +508,7 @@ call :CHECK_VAR "ANDROID_HOME"
 call :CHECK_VAR "MAVEN_HOME"
 call :CHECK_VAR "GRADLE_USER_HOME"
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -557,6 +572,7 @@ echo.
 echo  !C_GREEN![OK]!C_RESET! Diagnostic report generated:
 echo  !C_CYAN!%REPORT_FILE%!C_RESET!
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -569,7 +585,5 @@ call :HEADER
 echo  !C_GREEN!Thank you for using DEV.!C_RESET!
 echo  !C_GRAY!Provider: AnoS ^| Developer Tools Suite!C_RESET!
 echo.
-echo  Press any key to close...
-pause >nul
 endlocal
 exit /b 0

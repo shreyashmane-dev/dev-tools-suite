@@ -36,6 +36,23 @@ set "LOG_FILE=%LOG_DIR%\package-hub.log"
 set "WINGET_OK=0"
 call :CHECK_WINGET
 
+set "EMPTY_COUNT=0"
+
+REM --- Direct CLI Argument Routing
+if not "%~1"=="" (
+    set "CHOICE=%~1"
+    if "%~1"=="1" goto :SEARCH_PKG
+    if "%~1"=="2" goto :INSTALL_PKG
+    if "%~1"=="3" goto :UPGRADE_PKG
+    if "%~1"=="4" goto :UNINSTALL_PKG
+    if "%~1"=="5" goto :LIST_PKG
+    if "%~1"=="6" goto :INFO_PKG
+    if "%~1"=="7" goto :DEV_PACKAGES
+    if "%~1"=="8" goto :REFRESH_SOURCES
+    if "%~1"=="9" goto :DIAG_HISTORY
+    if "%~1"=="0" goto :EXIT
+)
+
 goto :MAIN_MENU
 
 REM ------------------------------------------------------------
@@ -83,22 +100,29 @@ call :HEADER
 echo  !C_WHITE!BACKEND STATUS!C_RESET!
 if "!WINGET_OK!"=="1" (
     for /f "delims=" %%V in ('winget --version 2^>nul') do (
-        echo  WinGet Provider : !C_GREEN!Available (%%V)!C_RESET!
+        echo  WinGet Provider : !C_GREEN!Available [%%V]!C_RESET!
     )
 ) else (
-    echo  WinGet Provider : !C_RED!Not Detected (Install Windows App Installer)!C_RESET!
+    echo  WinGet Provider : !C_RED!Not Detected [Install Windows App Installer]!C_RESET!
 )
 echo.
 echo  !C_WHITE!MAIN MENU!C_RESET!
 echo    !C_CYAN![1]!C_RESET! Search Packages               !C_CYAN![6]!C_RESET! Package Information
 echo    !C_CYAN![2]!C_RESET! Install Package               !C_CYAN![7]!C_RESET! Developer Quick-Picks
 echo    !C_CYAN![3]!C_RESET! Upgrade Packages              !C_CYAN![8]!C_RESET! Refresh Package Sources
-echo    !C_CYAN![4]!C_RESET! Uninstall Package             !C_CYAN![9]!C_RESET! Diagnostics & History
+echo    !C_CYAN![4]!C_RESET! Uninstall Package             !C_CYAN![9]!C_RESET! Diagnostics ^& History
 echo    !C_CYAN![5]!C_RESET! Installed Packages List       !C_RED![0]!C_RESET! Exit
 echo.
 
 set "CHOICE="
 set /p "CHOICE=Select an option [0-9]: "
+if not defined CHOICE (
+    set /a EMPTY_COUNT+=1
+    if !EMPTY_COUNT! geq 3 goto :EXIT
+    goto :MAIN_MENU
+)
+set "EMPTY_COUNT=0"
+
 if "!CHOICE!"=="1" goto :SEARCH_PKG
 if "!CHOICE!"=="2" goto :INSTALL_PKG
 if "!CHOICE!"=="3" goto :UPGRADE_PKG
@@ -307,7 +331,7 @@ REM ------------------------------------------------------------
 :INFO_PKG
 cls
 call :HEADER
-echo  !C_WHITE!!C_BOLD!PACKAGE METADATA & INFORMATION!C_RESET!
+echo  !C_WHITE!!C_BOLD!PACKAGE METADATA ^& INFORMATION!C_RESET!
 echo  ----------------------------------------------------------------------
 if "!WINGET_OK!"=="0" (
     echo !C_RED![FAIL] WinGet is required.!C_RESET!
@@ -334,11 +358,11 @@ call :HEADER
 echo  !C_WHITE!!C_BOLD!DEVELOPER QUICK-PICKS!C_RESET!
 echo  ----------------------------------------------------------------------
 echo  Choose a category to browse popular packages:
-echo    !C_CYAN![1]!C_RESET! Compilers & Core Runtimes
-echo    !C_CYAN![2]!C_RESET! IDEs & Text Editors
-echo    !C_CYAN![3]!C_RESET! Database Servers & Clients
-echo    !C_CYAN![4]!C_RESET! Cloud, Containers & DevOps
-echo    !C_CYAN![5]!C_RESET! Power Utilities & Tools
+echo    !C_CYAN![1]!C_RESET! Compilers ^& Core Runtimes
+echo    !C_CYAN![2]!C_RESET! IDEs ^& Text Editors
+echo    !C_CYAN![3]!C_RESET! Database Servers ^& Clients
+echo    !C_CYAN![4]!C_RESET! Cloud, Containers ^& DevOps
+echo    !C_CYAN![5]!C_RESET! Power Utilities ^& Tools
 echo    !C_RED![0]!C_RESET! Back to Menu
 echo.
 
@@ -408,7 +432,7 @@ REM ------------------------------------------------------------
 :DIAG_HISTORY
 cls
 call :HEADER
-echo  !C_WHITE!!C_BOLD!DIAGNOSTICS & OPERATION HISTORY!C_RESET!
+echo  !C_WHITE!!C_BOLD!DIAGNOSTICS ^& OPERATION HISTORY!C_RESET!
 echo  ----------------------------------------------------------------------
 echo  WinGet Diagnostic Information:
 winget --info 2>nul
@@ -423,6 +447,7 @@ if exist "%LOG_FILE%" (
     echo  No operations logged yet.
 )
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -435,7 +460,5 @@ call :HEADER
 echo  !C_GREEN!Thank you for using DEV.!C_RESET!
 echo  !C_GRAY!Provider: AnoS ^| Developer Tools Suite!C_RESET!
 echo.
-echo  Press any key to close...
-pause >nul
 endlocal
 exit /b 0

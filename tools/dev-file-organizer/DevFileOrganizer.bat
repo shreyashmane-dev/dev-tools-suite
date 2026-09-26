@@ -31,6 +31,19 @@ set "APP_PROVIDER=AnoS"
 set "LAST_FOLDER="
 set "DRY_RUN=0"
 
+set "EMPTY_COUNT=0"
+
+REM --- Direct CLI Argument Routing
+if not "%~1"=="" (
+    set "CHOICE=%~1"
+    if "%~1"=="1" goto :ORG_CURRENT
+    if "%~1"=="2" goto :ORG_DOWNLOADS
+    if "%~1"=="3" goto :ORG_CUSTOM
+    if "%~1"=="4" goto :ORG_DRY_RUN
+    if "%~1"=="5" goto :VIEW_CATALOG
+    if "%~1"=="0" goto :EXIT
+)
+
 goto :MAIN_MENU
 
 REM ------------------------------------------------------------
@@ -69,12 +82,19 @@ echo    !C_CYAN![1]!C_RESET! Organize Current Working Directory (%CD%)
 echo    !C_CYAN![2]!C_RESET! Organize Downloads Folder (%USERPROFILE%\Downloads)
 echo    !C_CYAN![3]!C_RESET! Organize Custom Directory
 echo    !C_CYAN![4]!C_RESET! Dry Run / Simulation (Preview without moving files)
-echo    !C_CYAN![5]!C_RESET! View Supported Extensions & Language Catalog
+echo    !C_CYAN![5]!C_RESET! View Supported Extensions ^& Language Catalog
 echo    !C_RED![0]!C_RESET! Exit
 echo.
 
 set "CHOICE="
 set /p "CHOICE=Select an option [0-5]: "
+if not defined CHOICE (
+    set /a EMPTY_COUNT+=1
+    if !EMPTY_COUNT! geq 3 goto :EXIT
+    goto :MAIN_MENU
+)
+set "EMPTY_COUNT=0"
+
 if "!CHOICE!"=="1" goto :ORG_CURRENT
 if "!CHOICE!"=="2" goto :ORG_DOWNLOADS
 if "!CHOICE!"=="3" goto :ORG_CUSTOM
@@ -92,6 +112,7 @@ REM ------------------------------------------------------------
 :ORG_CURRENT
 set "DRY_RUN=0"
 call :RUN_ORGANIZER "%CD%"
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -101,6 +122,7 @@ REM ------------------------------------------------------------
 :ORG_DOWNLOADS
 set "DRY_RUN=0"
 call :RUN_ORGANIZER "%USERPROFILE%\Downloads"
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -114,17 +136,26 @@ call :HEADER
 echo  !C_WHITE!!C_BOLD!CUSTOM DIRECTORY ORGANIZER!C_RESET!
 echo  ----------------------------------------------------------------------
 set "CUST_PATH="
-set /p "CUST_PATH=Enter or paste full folder path: "
-if not defined CUST_PATH goto :MAIN_MENU
+if not "%~2"=="" (
+    set "CUST_PATH=%~2"
+) else (
+    set /p "CUST_PATH=Enter or paste full folder path: "
+)
+if not defined CUST_PATH (
+    if not "%~1"=="" goto :EXIT
+    goto :MAIN_MENU
+)
 set "CUST_PATH=%CUST_PATH:"=%"
 
 if not exist "%CUST_PATH%" (
     echo !C_RED![FAIL] Directory does not exist: %CUST_PATH%!C_RESET!
+    if not "%~1"=="" goto :EXIT
     pause
     goto :MAIN_MENU
 )
 
 call :RUN_ORGANIZER "%CUST_PATH%"
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -140,17 +171,23 @@ echo  ----------------------------------------------------------------------
 echo  Shows planned moves without modifying any files on disk.
 echo.
 set "DRY_PATH="
-set /p "DRY_PATH=Folder path [Press Enter for current: %CD%]: "
+if not "%~2"=="" (
+    set "DRY_PATH=%~2"
+) else (
+    set /p "DRY_PATH=Folder path [Press Enter for current: %CD%]: "
+)
 if not defined DRY_PATH set "DRY_PATH=%CD%"
 set "DRY_PATH=%DRY_PATH:"=%"
 
 if not exist "%DRY_PATH%" (
     echo !C_RED![FAIL] Directory does not exist: %DRY_PATH%!C_RESET!
+    if not "%~1"=="" goto :EXIT
     pause
     goto :MAIN_MENU
 )
 
 call :RUN_ORGANIZER "%DRY_PATH%"
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -165,7 +202,7 @@ call :HEADER
 
 echo  Target Directory: !C_CYAN!%TARGET_DIR%!C_RESET!
 if "!DRY_RUN!"=="1" (
-    echo  Mode            : !C_YELLOW!SIMULATION / DRY RUN (No files will be moved)!C_RESET!
+    echo  Mode            : !C_YELLOW!SIMULATION / DRY RUN [No files will be moved]!C_RESET!
 ) else (
     echo  Mode            : !C_GREEN!LIVE EXECUTION!C_RESET!
     set "CONF="
@@ -179,86 +216,9 @@ echo.
 echo  Scanning and categorizing files...
 echo.
 
-powershell -NoProfile -ExecutionPolicy Bypass -Command "
-$target = '%TARGET_DIR%';
-$dryRun = (%DRY_RUN% -eq 1);
-$codeRoot = 'Development\Developer-Code';
-
-$langMap = @{
-    '.py'='Python'; '.pyw'='Python'; '.pyx'='Python'
-    '.c'='C'; '.h'='C'; '.cc'='C++'; '.cpp'='C++'; '.cxx'='C++'; '.hpp'='C++'; '.hh'='C++'
-    '.java'='Java'; '.class'='Java'; '.jar'='Java'
-    '.js'='JavaScript'; '.mjs'='JavaScript'; '.cjs'='JavaScript'; '.jsx'='JavaScript'
-    '.ts'='TypeScript'; '.tsx'='TypeScript'; '.cs'='CSharp'; '.go'='Go'; '.rs'='Rust'
-    '.kt'='Kotlin'; '.kts'='Kotlin'; '.swift'='Swift'; '.dart'='Dart'; '.php'='PHP'
-    '.rb'='Ruby'; '.lua'='Lua'; '.r'='R'; '.rmd'='R'; '.sql'='SQL'
-    '.html'='Web'; '.htm'='Web'; '.css'='Web'; '.scss'='Web'; '.sass'='Web'; '.vue'='Web'; '.svelte'='Web'
-    '.sh'='Shell'; '.bash'='Shell'; '.zsh'='Shell'; '.ps1'='PowerShell'; '.psm1'='PowerShell'
-}
-
-$dotFiles = @('.env','.gitignore','.gitattributes','.gitmodules','.dockerignore','dockerfile','makefile','justfile','cmakelists.txt','requirements.txt','pyproject.toml','package.json','package-lock.json','yarn.lock','pnpm-lock.yaml','tsconfig.json','cargo.toml','go.mod','pom.xml','build.gradle')
-
-$managed = @('Images','Videos','Audio','Documents','PDFs','Archives','Installers','Development','Other')
-
-$files = @(Get-ChildItem -LiteralPath $target -File -Force -ErrorAction SilentlyContinue | Where-Object { $_.Name -notlike '*.bat' -and $_.Name -notlike '*.ps1' })
-
-$moved = 0
-$skipped = 0
-
-foreach ($file in $files) {
-    $ext = $file.Extension.ToLowerInvariant()
-    $name = $file.Name.ToLowerInvariant()
-
-    if (($dotFiles -contains $name) -or ($name -match '^\.env\..+')) { $rel = \"$codeRoot\Configuration\" }
-    elseif ($langMap.ContainsKey($ext)) { $rel = \"$codeRoot\$($langMap[$ext])\" }
-    elseif ($ext -in @('.blend','.fbx','.obj','.stl','.gltf','.glb','.dae','.3ds')) { $rel = 'Development\3D-Assets' }
-    elseif ($ext -in @('.jpg','.jpeg','.png','.gif','.bmp','.webp','.svg','.ico','.tiff')) { $rel = 'Images' }
-    elseif ($ext -in @('.mp4','.mkv','.mov','.avi','.wmv','.webm','.m4v')) { $rel = 'Videos' }
-    elseif ($ext -in @('.mp3','.wav','.flac','.aac','.m4a','.ogg','.wma')) { $rel = 'Audio' }
-    elseif ($ext -eq '.pdf') { $rel = 'PDFs' }
-    elseif ($ext -in @('.doc','.docx','.odt','.rtf','.txt','.md','.epub')) { $rel = 'Documents' }
-    elseif ($ext -in @('.xls','.xlsx','.ods','.csv')) { $rel = 'Documents\Spreadsheets' }
-    elseif ($ext -in @('.ppt','.pptx','.odp')) { $rel = 'Documents\Presentations' }
-    elseif ($ext -in @('.zip','.rar','.7z','.tar','.gz','.bz2')) { $rel = 'Archives' }
-    elseif ($ext -in @('.exe','.msi','.msix','.appx')) { $rel = 'Installers' }
-    else { $rel = 'Other' }
-
-    $destFolder = Join-Path $target $rel
-    $destFile = Join-Path $destFolder $file.Name
-
-    if ($dryRun) {
-        Write-Host ('  [PLAN] ' + $file.Name + ' -> ' + $rel) -ForegroundColor Cyan
-        $moved++
-    } else {
-        try {
-            if (-not (Test-Path -LiteralPath $destFolder)) {
-                New-Item -ItemType Directory -Path $destFolder -Force | Out-Null
-            }
-            if (Test-Path -LiteralPath $destFile) {
-                $base = [IO.Path]::GetFileNameWithoutExtension($file.Name)
-                $suf = [IO.Path]::GetExtension($file.Name)
-                $num = 1
-                do { $destFile = Join-Path $destFolder \"$base ($num)$suf\"; $num++ }
-                while (Test-Path -LiteralPath $destFile)
-            }
-            Move-Item -LiteralPath $file.FullName -Destination $destFile -Force
-            Write-Host ('  [MOVED] ' + $file.Name + ' -> ' + $rel) -ForegroundColor Green
-            $moved++
-        } catch {
-            Write-Host ('  [SKIP] ' + $file.Name + ': ' + $_.Exception.Message) -ForegroundColor Yellow
-            $skipped++
-        }
-    }
-}
-
-Write-Host ''
-Write-Host '----------------------------------------------------------------------'
-if ($dryRun) {
-    Write-Host ('  Simulation complete. Files analyzed for organization: ' + $moved) -ForegroundColor Yellow
-} else {
-    Write-Host ('  Operation complete. Successfully moved: ' + $moved + ' | Skipped: ' + $skipped) -ForegroundColor Green
-}
-" 2>nul
+set "ORG_TARGET=%TARGET_DIR%"
+set "ORG_DRY=%DRY_RUN%"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$target = $env:ORG_TARGET; $dryRun = ($env:ORG_DRY -eq '1'); $codeRoot = 'Development\Developer-Code'; $langMap = @{ '.py'='Python'; '.pyw'='Python'; '.pyx'='Python'; '.c'='C'; '.h'='C'; '.cc'='C++'; '.cpp'='C++'; '.cxx'='C++'; '.hpp'='C++'; '.hh'='C++'; '.java'='Java'; '.class'='Java'; '.jar'='Java'; '.js'='JavaScript'; '.mjs'='JavaScript'; '.cjs'='JavaScript'; '.jsx'='JavaScript'; '.ts'='TypeScript'; '.tsx'='TypeScript'; '.cs'='CSharp'; '.go'='Go'; '.rs'='Rust'; '.kt'='Kotlin'; '.kts'='Kotlin'; '.swift'='Swift'; '.dart'='Dart'; '.php'='PHP'; '.rb'='Ruby'; '.lua'='Lua'; '.r'='R'; '.rmd'='R'; '.sql'='SQL'; '.html'='Web'; '.htm'='Web'; '.css'='Web'; '.scss'='Web'; '.sass'='Web'; '.vue'='Web'; '.svelte'='Web'; '.sh'='Shell'; '.bash'='Shell'; '.zsh'='Shell'; '.ps1'='PowerShell'; '.psm1'='PowerShell' }; $dotFiles = @('.env','.gitignore','.gitattributes','.gitmodules','.dockerignore','dockerfile','makefile','justfile','cmakelists.txt','requirements.txt','pyproject.toml','package.json','package-lock.json','yarn.lock','pnpm-lock.yaml','tsconfig.json','cargo.toml','go.mod','pom.xml','build.gradle'); $files = @(Get-ChildItem -LiteralPath $target -File -Force -ErrorAction SilentlyContinue | Where-Object { $_.Name -notlike '*.bat' -and $_.Name -notlike '*.ps1' }); $moved = 0; $skipped = 0; foreach ($file in $files) { $ext = $file.Extension.ToLowerInvariant(); $name = $file.Name.ToLowerInvariant(); if (($dotFiles -contains $name) -or ($name -match '^\.env\..+')) { $rel = Join-Path $codeRoot 'Configuration' } elseif ($langMap.ContainsKey($ext)) { $rel = Join-Path $codeRoot $langMap[$ext] } elseif ($ext -in @('.blend','.fbx','.obj','.stl','.gltf','.glb','.dae','.3ds')) { $rel = 'Development\3D-Assets' } elseif ($ext -in @('.jpg','.jpeg','.png','.gif','.bmp','.webp','.svg','.ico','.tiff')) { $rel = 'Images' } elseif ($ext -in @('.mp4','.mkv','.mov','.avi','.wmv','.webm','.m4v')) { $rel = 'Videos' } elseif ($ext -in @('.mp3','.wav','.flac','.aac','.m4a','.ogg','.wma')) { $rel = 'Audio' } elseif ($ext -eq '.pdf') { $rel = 'PDFs' } elseif ($ext -in @('.doc','.docx','.odt','.rtf','.txt','.md','.epub')) { $rel = 'Documents' } elseif ($ext -in @('.xls','.xlsx','.ods','.csv')) { $rel = 'Documents\Spreadsheets' } elseif ($ext -in @('.ppt','.pptx','.odp')) { $rel = 'Documents\Presentations' } elseif ($ext -in @('.zip','.rar','.7z','.tar','.gz','.bz2')) { $rel = 'Archives' } elseif ($ext -in @('.exe','.msi','.msix','.appx')) { $rel = 'Installers' } else { $rel = 'Other' }; $destFolder = Join-Path $target $rel; $destFile = Join-Path $destFolder $file.Name; if ($dryRun) { Write-Host ('  [PLAN] ' + $file.Name + ' -> ' + $rel) -ForegroundColor Cyan; $moved++ } else { try { if (-not (Test-Path -LiteralPath $destFolder)) { New-Item -ItemType Directory -Path $destFolder -Force | Out-Null }; if (Test-Path -LiteralPath $destFile) { $base = [IO.Path]::GetFileNameWithoutExtension($file.Name); $suf = [IO.Path]::GetExtension($file.Name); $num = 1; do { $destFile = Join-Path $destFolder ($base + ' (' + $num + ')' + $suf); $num++ } while (Test-Path -LiteralPath $destFile) }; Move-Item -LiteralPath $file.FullName -Destination $destFile -Force; Write-Host ('  [MOVED] ' + $file.Name + ' -> ' + $rel) -ForegroundColor Green; $moved++ } catch { Write-Host ('  [SKIP] ' + $file.Name + ': ' + $_.Exception.Message) -ForegroundColor Yellow; $skipped++ } } }; Write-Host ''; Write-Host '----------------------------------------------------------------------'; if ($dryRun) { Write-Host ('  Simulation complete. Files analyzed for organization: ' + $moved) -ForegroundColor Yellow } else { Write-Host ('  Operation complete. Successfully moved: ' + $moved + ' / Skipped: ' + $skipped) -ForegroundColor Green }" 2>nul
 
 exit /b
 
@@ -268,17 +228,18 @@ REM ------------------------------------------------------------
 :VIEW_CATALOG
 cls
 call :HEADER
-echo  !C_WHITE!!C_BOLD!SUPPORTED FILE TYPES & EXTENSIONS!C_RESET!
+echo  !C_WHITE!!C_BOLD!SUPPORTED FILE TYPES ^& EXTENSIONS!C_RESET!
 echo  ----------------------------------------------------------------------
 echo  * Developer Languages : Python, C, C++, Java, JS, TS, C#, Go, Rust, Kotlin,
 echo                          Swift, Dart, PHP, Ruby, Lua, R, SQL, Web (HTML/CSS),
 echo                          Shell, PowerShell
 echo  * Configuration Files   : .env, .gitignore, package.json, CMakeLists.txt,
 echo                          pom.xml, build.gradle, cargo.toml, dockerfile
-echo  * 3D & Spatial Assets  : .blend, .fbx, .obj, .stl, .gltf, .glb, .dae
+echo  * 3D ^& Spatial Assets  : .blend, .fbx, .obj, .stl, .gltf, .glb, .dae
 echo  * Media Categories     : Images, Videos, Audio, PDFs, Documents, Archives
 echo  * Installers           : .exe, .msi, .msix, .appx
 echo.
+if not "%~1"=="" goto :EXIT
 pause
 goto :MAIN_MENU
 
@@ -291,7 +252,5 @@ call :HEADER
 echo  !C_GREEN!Thank you for using DEV.!C_RESET!
 echo  !C_GRAY!Provider: AnoS ^| Developer Tools Suite!C_RESET!
 echo.
-echo  Press any key to close...
-pause >nul
 endlocal
 exit /b 0
