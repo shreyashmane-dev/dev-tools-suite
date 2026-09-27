@@ -111,7 +111,7 @@ powershell -ep bypass -c "& ([scriptblock]::Create((irm https://raw.githubuserco
 ```
 
 #### Step-by-Step Guide:
-1. Open **Windows Terminal**, **PowerShell**, or **Command Prompt** (Press <kbd>Win + X</kbd>).
+1. Open **Windows Terminal** or **PowerShell** (Press <kbd>Win + X</kbd> and select **Terminal**).
 2. Choose your desired tool flag:
    - `-Tool setup` &rarr; DEV Setup Center
    - `-Tool forge` &rarr; DEV Project Forge

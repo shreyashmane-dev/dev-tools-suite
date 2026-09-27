@@ -3,7 +3,7 @@
  * Provider: AnoS
  * Brand: DEV
  * Version: 1.0.0
- * Features: Multi-theme switcher, live search/filtering, modal preview, clipboard copy
+ * Features: Instant Blob BAT downloads, Command switcher, Theme toggle, Modal preview
  */
 
 let currentToolsData = { suite: {}, tools: [] };
@@ -65,8 +65,12 @@ function applyTheme(themeName) {
   }
 }
 
-// Load metadata from site/data/tools.json with automatic fallback
+// Load metadata from bundled object or site/data/tools.json
 async function loadToolsData() {
+  if (window.DEV_TOOLS_DATA && window.DEV_TOOLS_DATA.tools && window.DEV_TOOLS_DATA.tools.length > 0) {
+    currentToolsData = window.DEV_TOOLS_DATA;
+    return;
+  }
   const candidates = ['site/data/tools.json', 'data/tools.json', '../site/data/tools.json'];
   for (const p of candidates) {
     try {
@@ -75,7 +79,7 @@ async function loadToolsData() {
         currentToolsData = await res.json();
         return;
       }
-    } catch (err) {}
+    } catch (err) { }
   }
   console.info('Loaded metadata configuration.');
 }
@@ -191,7 +195,7 @@ function initSearchAndFilter() {
   });
 }
 
-window.resetFilters = function() {
+window.resetFilters = function () {
   searchQuery = '';
   activeFilter = 'all';
   const searchInput = document.getElementById('toolSearchInput');
@@ -264,7 +268,7 @@ function displayTerminalPreview(tool) {
 }
 
 // Open Detail Modal
-window.openToolModal = function(toolId) {
+window.openToolModal = function (toolId) {
   const tool = currentToolsData.tools.find(t => t.id === toolId);
   if (!tool) return;
 
@@ -275,50 +279,71 @@ window.openToolModal = function(toolId) {
   const featuresList = document.getElementById('modalToolFeatures');
   const reqList = document.getElementById('modalToolReqs');
   const psCmd = document.getElementById('modalPsCommand');
+  const downloadBtn = document.getElementById('modalDownloadBtn');
   const downloadLink = document.getElementById('modalDownloadLink');
   const githubLink = document.getElementById('modalGithubLink');
   const previewBox = document.getElementById('modalTerminalPreview');
 
-  title.textContent = tool.name;
-  subtitle.textContent = `v${tool.version} | ${tool.tagline}`;
-  desc.textContent = tool.description;
+  if (title) title.textContent = tool.name;
+  if (subtitle) subtitle.textContent = `v${tool.version} | ${tool.tagline}`;
+  if (desc) desc.textContent = tool.description;
 
-  featuresList.innerHTML = (tool.features || []).map(f => `<li>${ICONS.check} ${escapeHtml(f)}</li>`).join('');
-  
+  if (featuresList) {
+    featuresList.innerHTML = (tool.features || []).map(f => `<li>${ICONS.check} ${escapeHtml(f)}</li>`).join('');
+  }
+
   const reqs = tool.requirements || {};
-  reqList.innerHTML = `
-    <li><strong>Operating System:</strong> ${escapeHtml(reqs.os || 'Windows 10 / 11')}</li>
-    <li><strong>Terminal Shell:</strong> ${escapeHtml(reqs.shell || 'cmd.exe or Windows Terminal')}</li>
-    <li><strong>Dependencies:</strong> ${escapeHtml(reqs.dependencies || 'None (Self-contained)')}</li>
-    <li><strong>Required Elevation:</strong> ${escapeHtml(reqs.privileges || 'Standard user')}</li>
-    <li><strong>SHA-256 Checksum:</strong> <code style="color:var(--color-cyan); font-size:0.8rem;">${tool.sha256 || 'Verified'}</code></li>
-  `;
+  if (reqList) {
+    reqList.innerHTML = `
+      <li><strong>Operating System:</strong> ${escapeHtml(reqs.os || 'Windows 10 / 11')}</li>
+      <li><strong>Terminal Shell:</strong> ${escapeHtml(reqs.shell || 'cmd.exe or Windows Terminal')}</li>
+      <li><strong>Dependencies:</strong> ${escapeHtml(reqs.dependencies || 'None (Self-contained)')}</li>
+      <li><strong>Required Elevation:</strong> ${escapeHtml(reqs.privileges || 'Standard user')}</li>
+      <li><strong>SHA-256 Checksum:</strong> <code style="color:var(--color-cyan); font-size:0.8rem;">${tool.sha256 || 'Verified'}</code></li>
+    `;
+  }
 
-  psCmd.textContent = tool.powershellCommand;
+  if (psCmd) psCmd.textContent = tool.powershellCommand;
   const copyBtn = document.getElementById('modalCopyBtn');
-  copyBtn.onclick = () => copyPowerShell(copyBtn, tool.powershellCommand);
+  if (copyBtn) {
+    copyBtn.onclick = () => copyPowerShell(copyBtn, tool.powershellCommand);
+  }
 
-  downloadLink.href = tool.downloadUrl;
-  downloadLink.setAttribute('download', tool.fileName);
-  downloadLink.onclick = (e) => { e.preventDefault(); downloadTool(tool.id, e); };
-  downloadLink.innerHTML = `${ICONS.download} Download ${escapeHtml(tool.fileName)}`;
+  // Direct Blob-Download Handler (Guarantee: No Code Page)
+  if (downloadBtn) {
+    downloadBtn.innerHTML = `${ICONS.download} Download ${escapeHtml(tool.fileName)}`;
+    downloadBtn.onclick = (e) => {
+      e.preventDefault();
+      downloadTool(tool.id, e);
+    };
+  }
 
-  githubLink.href = tool.githubUrl;
+  if (downloadLink) {
+    downloadLink.innerHTML = `${ICONS.download} Download ${escapeHtml(tool.fileName)}`;
+    downloadLink.onclick = (e) => {
+      e.preventDefault();
+      downloadTool(tool.id, e);
+    };
+  }
 
-  if (tool.preview) {
+  if (githubLink) {
+    githubLink.href = tool.githubUrl;
+  }
+
+  if (previewBox && tool.preview) {
     previewBox.textContent = tool.preview.join('\n');
   }
 
-  modal.classList.add('open');
+  if (modal) modal.classList.add('open');
 };
 
-window.closeToolModal = function() {
+window.closeToolModal = function () {
   const modal = document.getElementById('toolModal');
   if (modal) modal.classList.remove('open');
 };
 
 // Clipboard Copy with Animated Feedback
-window.copyPowerShell = function(btnElement, commandText) {
+window.copyPowerShell = function (btnElement, commandText) {
   navigator.clipboard.writeText(commandText).then(() => {
     handleCopySuccess(btnElement);
   }).catch(() => {
@@ -333,11 +358,12 @@ window.copyPowerShell = function(btnElement, commandText) {
 };
 
 function handleCopySuccess(btn) {
+  if (!btn) return;
   const origHtml = btn.innerHTML;
   btn.innerHTML = `${ICONS.check} Copied!`;
   btn.classList.add('copied');
 
-  showToast('PowerShell launch command copied to clipboard!');
+  showToast('Launch command copied to clipboard!');
 
   setTimeout(() => {
     btn.innerHTML = origHtml;
@@ -382,10 +408,10 @@ function initFAQ() {
 function escapeHtml(str) {
   if (!str) return '';
   return str.replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
 function escapeAttr(str) {
@@ -400,11 +426,18 @@ function capitalize(s) {
 
 // -------------------------------------------------------------
 // Direct Standalone BAT Download via Blob (Same-Origin Guarantee)
+// Never opens a code page in browser!
 // -------------------------------------------------------------
-window.downloadTool = async function(toolId, event) {
-  if (event) event.preventDefault();
+window.downloadTool = function (toolId, event) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
   const tool = currentToolsData.tools.find(t => t.id === toolId);
-  if (!tool) return;
+  if (!tool) {
+    console.error('Tool not found:', toolId);
+    return;
+  }
 
   const btn = event ? event.currentTarget : null;
   const originalHtml = btn ? btn.innerHTML : '';
@@ -413,71 +446,97 @@ window.downloadTool = async function(toolId, event) {
     btn.disabled = true;
   }
 
-  showToast(`Initiating download for ${tool.fileName}...`);
+  showToast(`Initiating direct download for ${tool.fileName}...`);
 
   try {
-    let batContent = null;
-    const candidateUrls = [
+    let batBlob = null;
+
+    // 1. Primary: Direct memory extraction from pre-bundled Base64 payload
+    if (window.DEV_BATCH_BASE64 && window.DEV_BATCH_BASE64[tool.id]) {
+      const b64 = window.DEV_BATCH_BASE64[tool.id];
+      const binaryStr = atob(b64);
+      const len = binaryStr.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryStr.charCodeAt(i);
+      }
+      batBlob = new Blob([bytes], { type: 'application/octet-stream' });
+    }
+
+    if (batBlob) {
+      triggerBlobDownload(batBlob, tool.fileName);
+      showToast(`Saved ${tool.fileName} directly to your Downloads folder!`);
+      if (btn) {
+        setTimeout(() => {
+          btn.innerHTML = originalHtml;
+          btn.disabled = false;
+        }, 1200);
+      }
+      return;
+    }
+
+    // 2. Secondary fallback: Fetch as Blob from relative paths or GitHub Raw with CORS
+    const candidatePaths = [
       tool.batPath,
-      `../${tool.batPath}`,
+      '../' + tool.batPath,
+      '../../' + tool.batPath,
+      'site/' + tool.batPath,
       tool.downloadUrl
     ];
 
-    for (const url of candidateUrls) {
-      try {
-        const res = await fetch(url);
-        if (res.ok) {
-          batContent = await res.text();
-          if (batContent && batContent.length > 50) {
+    (async () => {
+      let downloaded = false;
+      for (const p of candidatePaths) {
+        try {
+          const res = await fetch(p);
+          if (res.ok) {
+            const blob = await res.blob();
+            const directBlob = new Blob([blob], { type: 'application/octet-stream' });
+            triggerBlobDownload(directBlob, tool.fileName);
+            showToast(`Saved ${tool.fileName} directly to your Downloads folder!`);
+            downloaded = true;
             break;
           }
-        }
-      } catch (e) {}
-    }
-
-    if (!batContent) {
-      const res = await fetch(tool.downloadUrl);
-      if (res.ok) {
-        batContent = await res.text();
+        } catch (_) {}
       }
-    }
 
-    if (batContent) {
-      // Force direct browser download using Blob URL (Bypasses cross-origin navigation)
-      const blob = new Blob([batContent], { type: 'application/octet-stream' });
-      const blobUrl = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = blobUrl;
-      a.download = tool.fileName;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 3000);
-      showToast(`Saved ${tool.fileName} to your Downloads folder!`);
-    } else {
-      // Fallback: direct window open if offline or blocked
-      window.open(tool.downloadUrl, '_blank');
-      showToast(`Opened ${tool.fileName}. Press Ctrl+S to save as .BAT`);
-    }
+      if (!downloaded) {
+        showToast(`Could not fetch ${tool.fileName} automatically. Use one-line command to launch!`);
+      }
+    })().finally(() => {
+      if (btn) {
+        setTimeout(() => {
+          btn.innerHTML = originalHtml;
+          btn.disabled = false;
+        }, 1200);
+      }
+    });
+
   } catch (err) {
     console.error('Download error:', err);
-    window.open(tool.downloadUrl, '_blank');
-    showToast(`Opened ${tool.fileName}. Press Ctrl+S to save as .BAT`);
-  } finally {
     if (btn) {
-      setTimeout(() => {
-        btn.innerHTML = originalHtml;
-        btn.disabled = false;
-      }, 1400);
+      btn.innerHTML = originalHtml;
+      btn.disabled = false;
     }
   }
 };
 
+function triggerBlobDownload(blob, fileName) {
+  const blobUrl = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.style.display = 'none';
+  a.href = blobUrl;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(blobUrl), 3000);
+}
+
 // -------------------------------------------------------------
 // Download Full Suite ZIP Archive
 // -------------------------------------------------------------
-window.downloadAllZip = function(event) {
+window.downloadAllZip = function (event) {
   if (event) event.preventDefault();
   const zipUrl = 'https://github.com/shreyashmane-dev/dev-tools-suite/archive/refs/heads/main.zip';
   showToast('Starting complete DEV Tools Suite (.ZIP) download...');
@@ -499,11 +558,11 @@ const SUITE_COMMANDS = {
 
 let currentShell = 'powershell';
 
-window.initCommandSwitcher = function() {
+window.initCommandSwitcher = function () {
   window.switchCommandTab('powershell');
 };
 
-window.switchCommandTab = function(shellType) {
+window.switchCommandTab = function (shellType) {
   currentShell = shellType;
   const cmdTextElem = document.getElementById('mainCmdText');
   const psTab = document.getElementById('tabPs');
@@ -519,7 +578,7 @@ window.switchCommandTab = function(shellType) {
   }
 };
 
-window.copyMainCommand = function(btn) {
+window.copyMainCommand = function (btn) {
   const cmd = SUITE_COMMANDS[currentShell] || SUITE_COMMANDS.powershell;
   copyPowerShell(btn, cmd);
 };
