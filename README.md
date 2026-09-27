@@ -86,30 +86,32 @@ All ten tools share one visual identity:
 
 DEV Tools Suite is designed for maximum developer flexibility. You can use any tool through two primary workflows:
 
-### Method 1: Run via One-Line PowerShell or CMD Command
+### Method 1: Run via One-Line Master Command (All 10 Tools)
 
-No installation or pre-cloning required. Simply copy the verified launch command from the website or documentation, paste it into your terminal, and press <kbd>Enter</kbd>.
+No installation or pre-cloning required. Simply copy the verified one-liner command below into **PowerShell** or **Command Prompt (CMD)** and press <kbd>Enter</kbd> to launch the interactive master menu with access to all 10 tools:
 
 #### In PowerShell (Windows Terminal / PowerShell 5.1 & 7+):
 ```powershell
-# Launch specific tool (e.g. DEV Setup Center):
-$f = "$env:TEMP\DevLauncher.ps1"; irm https://raw.githubusercontent.com/shreyashmane-dev/dev-tools-suite/main/launcher/DevLauncher.ps1 -OutFile $f; & $f -Tool setup; rm $f
-
-# Or launch the interactive suite menu:
-$f = "$env:TEMP\DevLauncher.ps1"; irm https://raw.githubusercontent.com/shreyashmane-dev/dev-tools-suite/main/launcher/DevLauncher.ps1 -OutFile $f; & $f; rm $f
+irm https://raw.githubusercontent.com/shreyashmane-dev/dev-tools-suite/main/launcher/DevLauncher.ps1 | iex
 ```
 
 #### In Command Prompt (CMD):
 ```cmd
-:: Launch specific tool (e.g. DEV Setup Center):
-powershell -ExecutionPolicy Bypass -Command "$f = Join-Path $env:TEMP 'DevLauncher.ps1'; irm 'https://raw.githubusercontent.com/shreyashmane-dev/dev-tools-suite/main/launcher/DevLauncher.ps1' -OutFile $f; & $f -Tool setup; rm $f"
+powershell -ep bypass -c "irm https://raw.githubusercontent.com/shreyashmane-dev/dev-tools-suite/main/launcher/DevLauncher.ps1 | iex"
+```
 
-:: Or launch the interactive suite menu:
-powershell -ExecutionPolicy Bypass -Command "$f = Join-Path $env:TEMP 'DevLauncher.ps1'; irm 'https://raw.githubusercontent.com/shreyashmane-dev/dev-tools-suite/main/launcher/DevLauncher.ps1' -OutFile $f; & $f; rm $f"
+#### Launch a Specific Tool Directly:
+If you want to jump straight into a specific tool without opening the interactive menu:
+```powershell
+# PowerShell:
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/shreyashmane-dev/dev-tools-suite/main/launcher/DevLauncher.ps1))) -Tool doctor
+
+# CMD:
+powershell -ep bypass -c "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/shreyashmane-dev/dev-tools-suite/main/launcher/DevLauncher.ps1))) -Tool doctor"
 ```
 
 #### Step-by-Step Guide:
-1. Open **Windows Terminal** or **PowerShell** (Press <kbd>Win + X</kbd> and select **Terminal**).
+1. Open **Windows Terminal**, **PowerShell**, or **Command Prompt** (Press <kbd>Win + X</kbd>).
 2. Choose your desired tool flag:
    - `-Tool setup` &rarr; DEV Setup Center
    - `-Tool forge` &rarr; DEV Project Forge

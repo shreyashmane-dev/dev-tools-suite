@@ -193,120 +193,145 @@ if ($List) {
     exit 0
 }
 
-# Interactive selection if no tool parameter specified
-if (-not $Tool) {
-    Show-Header
-    Write-Host "  SELECT A TOOL TO LAUNCH:" -ForegroundColor White
-    Write-Host ""
-    $i = 1
+$Interactive = (-not $Tool)
+
+do {
+    # Interactive selection if no tool parameter specified
+    if ($Interactive) {
+        Show-Header
+        Write-Host "  SELECT A TOOL TO LAUNCH:" -ForegroundColor White
+        Write-Host ""
+        $i = 1
+        foreach ($entry in $ToolsCatalog) {
+            Write-Host ("  [{0,-2}] {1}" -f $i, $entry.Name) -ForegroundColor Cyan
+            Write-Host ("       {0}" -f $entry.Description) -ForegroundColor Gray
+            $i++
+        }
+        Write-Host "  [0 ] Exit" -ForegroundColor Red
+        Write-Host ""
+        $sel = (Read-Host "  Enter choice [0-10]").Trim()
+        if ($sel -eq '0' -or -not $sel -or $sel.ToLower() -eq 'q') {
+            Write-Host "  Launcher closed. Thank you for using DEV." -ForegroundColor Gray
+            break
+        }
+        $CurrentTool = $sel
+    } else {
+        $CurrentTool = $Tool
+    }
+
+    # Match selected tool
+    $SelectedEntry = $null
     foreach ($entry in $ToolsCatalog) {
-        Write-Host ("  [{0,-2}] {1}" -f $i, $entry.Name) -ForegroundColor Cyan
-        Write-Host ("       {0}" -f $entry.Description) -ForegroundColor Gray
-        $i++
+        if ($entry.Alias -contains $CurrentTool.ToLower()) {
+            $SelectedEntry = $entry
+            break
+        }
     }
-    Write-Host "  [0 ] Exit" -ForegroundColor Red
+
+    if (-not $SelectedEntry) {
+        Write-Host ""
+        Write-Host "  [ERROR] Unknown tool identifier: '$CurrentTool'" -ForegroundColor Red
+        Write-Host "  Run 'DevLauncher.ps1 -List' to view available tools." -ForegroundColor Yellow
+        Write-Host ""
+        if (-not $Interactive) { exit 1 }
+        Start-Sleep -Seconds 2
+        continue
+    }
+
+    # Determine script source: Local repository clone or Remote download
+    $ScriptDef = try { $MyInvocation.MyCommand.Definition } catch { $null }
+    $ScriptDir = if ($ScriptDef) { Split-Path -Parent $ScriptDef -ErrorAction SilentlyContinue } else { $null }
+    $RepoRoot = if ($ScriptDir) { Split-Path -Parent $ScriptDir -ErrorAction SilentlyContinue } else { $null }
+    $LocalCandidate = if ($RepoRoot) { Join-Path $RepoRoot $SelectedEntry.RelPath.Replace('/', '\') } else { '' }
+
+    $ExecutionTarget = $null
+
+    if ($LocalCandidate -and (Test-Path -LiteralPath $LocalCandidate)) {
+        Write-Host "  [INFO] Using local tool file from repository clone..." -ForegroundColor Cyan
+        $ExecutionTarget = $LocalCandidate
+    } else {
+        # Ensure cache directory exists
+        if (-not (Test-Path -LiteralPath $CacheDir)) {
+            New-Item -ItemType Directory -Path $CacheDir -Force | Out-Null
+        }
+        $CachedBat = Join-Path $CacheDir $SelectedEntry.File
+        $RemoteUrl = "$RawBaseUrl/$($SelectedEntry.RelPath)"
+
+        Write-Host "  [DEV] Synchronizing $($SelectedEntry.Name)..." -ForegroundColor Cyan
+        Write-Host "        Source: $RemoteUrl" -ForegroundColor Gray
+
+        try {
+            [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+            Invoke-WebRequest -Uri $RemoteUrl -OutFile $CachedBat -UseBasicParsing
+        } catch {
+            Write-Host ""
+            Write-Host "  [ERROR] Failed to download $($SelectedEntry.Name):" -ForegroundColor Red
+            Write-Host "  $($_.Exception.Message)" -ForegroundColor Yellow
+            Write-Host ""
+            Write-Host "  Troubleshooting:" -ForegroundColor White
+            Write-Host "  - Verify internet and DNS connectivity" -ForegroundColor Gray
+            Write-Host "  - Check if GitHub raw content is reachable" -ForegroundColor Gray
+            Write-Host ""
+            if (-not $Interactive) { exit 1 }
+            Start-Sleep -Seconds 2
+            continue
+        }
+
+        # Validation
+        if (-not (Test-Path -LiteralPath $CachedBat)) {
+            Write-Host "  [ERROR] Cached file was not created." -ForegroundColor Red
+            if (-not $Interactive) { exit 1 }
+            continue
+        }
+
+        $fileInfo = Get-Item -LiteralPath $CachedBat
+        if ($fileInfo.Length -lt 200) {
+            Write-Host "  [ERROR] Downloaded file appears corrupted or empty (${fileInfo.Length} bytes)." -ForegroundColor Red
+            Remove-Item -LiteralPath $CachedBat -Force -ErrorAction SilentlyContinue
+            if (-not $Interactive) { exit 1 }
+            continue
+        }
+
+        # Optional SHA256 verification
+        if ($VerifyHash -and $SelectedEntry.Sha256) {
+            $computedHash = (Get-FileHash -Path $CachedBat -Algorithm SHA256).Hash
+            if ($computedHash -ne $SelectedEntry.Sha256) {
+                Write-Host "  [SECURITY ERROR] Hash mismatch detected!" -ForegroundColor Red
+                Write-Host "  Expected: $($SelectedEntry.Sha256)" -ForegroundColor Red
+                Write-Host "  Computed: $computedHash" -ForegroundColor Red
+                Remove-Item -LiteralPath $CachedBat -Force -ErrorAction SilentlyContinue
+                if (-not $Interactive) { exit 2 }
+                continue
+            }
+            Write-Host "  [OK] SHA256 checksum verified." -ForegroundColor Green
+        }
+
+        $ExecutionTarget = $CachedBat
+    }
+
+    # Boot the tool
+    Write-Host "  [DEV] Starting $($SelectedEntry.Name)..." -ForegroundColor Green
     Write-Host ""
-    $sel = (Read-Host "  Enter choice [0-10]").Trim()
-    if ($sel -eq '0' -or -not $sel) {
-        Write-Host "  Launcher closed." -ForegroundColor Gray
-        exit 0
-    }
-    $Tool = $sel
-}
-
-# Match selected tool
-$SelectedEntry = $null
-foreach ($entry in $ToolsCatalog) {
-    if ($entry.Alias -contains $Tool.ToLower()) {
-        $SelectedEntry = $entry
-        break
-    }
-}
-
-if (-not $SelectedEntry) {
-    Write-Host ""
-    Write-Host "  [ERROR] Unknown tool identifier: '$Tool'" -ForegroundColor Red
-    Write-Host "  Run 'DevLauncher.ps1 -List' to view available tools." -ForegroundColor Yellow
-    Write-Host ""
-    exit 1
-}
-
-# Determine script source: Local repository clone or Remote download
-$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
-$RepoRoot = Split-Path -Parent $ScriptDir
-$LocalCandidate = Join-Path $RepoRoot $SelectedEntry.RelPath.Replace('/', '\')
-
-$ExecutionTarget = $null
-
-if (Test-Path -LiteralPath $LocalCandidate) {
-    Write-Host "  [INFO] Using local tool file from repository clone..." -ForegroundColor Cyan
-    $ExecutionTarget = $LocalCandidate
-} else {
-    # Ensure cache directory exists
-    if (-not (Test-Path -LiteralPath $CacheDir)) {
-        New-Item -ItemType Directory -Path $CacheDir -Force | Out-Null
-    }
-    $CachedBat = Join-Path $CacheDir $SelectedEntry.File
-    $RemoteUrl = "$RawBaseUrl/$($SelectedEntry.RelPath)"
-
-    Write-Host "  [DEV] Synchronizing $($SelectedEntry.Name)..." -ForegroundColor Cyan
-    Write-Host "        Source: $RemoteUrl" -ForegroundColor Gray
 
     try {
-        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-        Invoke-WebRequest -Uri $RemoteUrl -OutFile $CachedBat -UseBasicParsing
+        $proc = Start-Process -FilePath "cmd.exe" -ArgumentList "/c `"$ExecutionTarget`"" -Wait -PassThru -NoNewWindow
+        $exitCode = $proc.ExitCode
     } catch {
-        Write-Host ""
-        Write-Host "  [ERROR] Failed to download $($SelectedEntry.Name):" -ForegroundColor Red
-        Write-Host "  $($_.Exception.Message)" -ForegroundColor Yellow
-        Write-Host ""
-        Write-Host "  Troubleshooting:" -ForegroundColor White
-        Write-Host "  - Verify internet and DNS connectivity" -ForegroundColor Gray
-        Write-Host "  - Check if GitHub raw content is reachable" -ForegroundColor Gray
-        Write-Host ""
-        exit 1
+        Write-Host "  [ERROR] Execution failure: $($_.Exception.Message)" -ForegroundColor Red
+        $exitCode = 1
     }
 
-    # Validation
-    if (-not (Test-Path -LiteralPath $CachedBat)) {
-        Write-Host "  [ERROR] Cached file was not created." -ForegroundColor Red
-        exit 1
-    }
-
-    $fileInfo = Get-Item -LiteralPath $CachedBat
-    if ($fileInfo.Length -lt 200) {
-        Write-Host "  [ERROR] Downloaded file appears corrupted or empty (${fileInfo.Length} bytes)." -ForegroundColor Red
-        Remove-Item -LiteralPath $CachedBat -Force -ErrorAction SilentlyContinue
-        exit 1
-    }
-
-    # Optional SHA256 verification
-    if ($VerifyHash -and $SelectedEntry.Sha256) {
-        $computedHash = (Get-FileHash -Path $CachedBat -Algorithm SHA256).Hash
-        if ($computedHash -ne $SelectedEntry.Sha256) {
-            Write-Host "  [SECURITY ERROR] Hash mismatch detected!" -ForegroundColor Red
-            Write-Host "  Expected: $($SelectedEntry.Sha256)" -ForegroundColor Red
-            Write-Host "  Computed: $computedHash" -ForegroundColor Red
-            Remove-Item -LiteralPath $CachedBat -Force -ErrorAction SilentlyContinue
-            exit 2
+    if ($Interactive) {
+        Write-Host ""
+        Write-Host "  --------------------------------------------------------------------------------" -ForegroundColor Cyan
+        $next = (Read-Host "  Press Enter to return to DEV Launcher menu, or '0' to exit").Trim()
+        if ($next -eq '0' -or $next.ToLower() -eq 'q') {
+            Write-Host "  Launcher closed. Thank you for using DEV." -ForegroundColor Gray
+            break
         }
-        Write-Host "  [OK] SHA256 checksum verified." -ForegroundColor Green
     }
 
-    $ExecutionTarget = $CachedBat
-}
-
-# Boot the tool
-Write-Host "  [DEV] Starting $($SelectedEntry.Name)..." -ForegroundColor Green
-Write-Host ""
-
-try {
-    $proc = Start-Process -FilePath "cmd.exe" -ArgumentList "/c `"$ExecutionTarget`"" -Wait -PassThru -NoNewWindow
-    $exitCode = $proc.ExitCode
-} catch {
-    Write-Host "  [ERROR] Execution failure: $($_.Exception.Message)" -ForegroundColor Red
-    $exitCode = 1
-}
+} while ($Interactive)
 
 # Cleanup temporary files if NoCache was requested
 if ($NoCache -and (Test-Path -LiteralPath $CacheDir)) {

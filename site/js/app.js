@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderDownloadsTable();
   initTerminalTabs();
   initSearchAndFilter();
+  initCommandSwitcher();
   initFAQ();
 });
 
@@ -147,9 +148,9 @@ function renderToolsGrid() {
         <button class="btn-action-primary" onclick="openToolModal('${tool.id}')">
           ${ICONS.external} View Tool
         </button>
-        <a href="${tool.downloadUrl}" download="${tool.fileName}" class="btn-action-download" title="Download standalone ${tool.fileName}">
+        <button onclick="downloadTool('${tool.id}', event)" class="btn-action-download" title="Download standalone ${tool.fileName}">
           ${ICONS.download} .BAT
-        </a>
+        </button>
         <button class="btn-action-copy" title="Copy PowerShell Launch Command" onclick="copyPowerShell(this, '${escapeAttr(tool.powershellCommand)}')">
           ${ICONS.copy}
         </button>
@@ -218,9 +219,9 @@ function renderDownloadsTable() {
       <td>${escapeHtml(tool.fileSize || '15 KB')}</td>
       <td><span class="hash-badge" title="${tool.sha256 || ''}">${shortHash}</span></td>
       <td>
-        <a href="${tool.downloadUrl}" download="${tool.fileName}" class="btn-action-download">
+        <button onclick="downloadTool('${tool.id}', event)" class="btn-action-download" title="Download standalone ${tool.fileName}">
           ${ICONS.download} Download
-        </a>
+        </button>
       </td>
     `;
     tbody.appendChild(row);
@@ -299,6 +300,7 @@ window.openToolModal = function(toolId) {
 
   downloadLink.href = tool.downloadUrl;
   downloadLink.setAttribute('download', tool.fileName);
+  downloadLink.onclick = (e) => { e.preventDefault(); downloadTool(tool.id, e); };
   downloadLink.innerHTML = `${ICONS.download} Download ${escapeHtml(tool.fileName)}`;
 
   githubLink.href = tool.githubUrl;
@@ -395,3 +397,129 @@ function capitalize(s) {
   if (!s) return '';
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
+
+// -------------------------------------------------------------
+// Direct Standalone BAT Download via Blob (Same-Origin Guarantee)
+// -------------------------------------------------------------
+window.downloadTool = async function(toolId, event) {
+  if (event) event.preventDefault();
+  const tool = currentToolsData.tools.find(t => t.id === toolId);
+  if (!tool) return;
+
+  const btn = event ? event.currentTarget : null;
+  const originalHtml = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.innerHTML = `${ICONS.check} Saving...`;
+    btn.disabled = true;
+  }
+
+  showToast(`Initiating download for ${tool.fileName}...`);
+
+  try {
+    let batContent = null;
+    const candidateUrls = [
+      tool.batPath,
+      `../${tool.batPath}`,
+      tool.downloadUrl
+    ];
+
+    for (const url of candidateUrls) {
+      try {
+        const res = await fetch(url);
+        if (res.ok) {
+          batContent = await res.text();
+          if (batContent && batContent.length > 50) {
+            break;
+          }
+        }
+      } catch (e) {}
+    }
+
+    if (!batContent) {
+      const res = await fetch(tool.downloadUrl);
+      if (res.ok) {
+        batContent = await res.text();
+      }
+    }
+
+    if (batContent) {
+      // Force direct browser download using Blob URL (Bypasses cross-origin navigation)
+      const blob = new Blob([batContent], { type: 'application/octet-stream' });
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = blobUrl;
+      a.download = tool.fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 3000);
+      showToast(`Saved ${tool.fileName} to your Downloads folder!`);
+    } else {
+      // Fallback: direct window open if offline or blocked
+      window.open(tool.downloadUrl, '_blank');
+      showToast(`Opened ${tool.fileName}. Press Ctrl+S to save as .BAT`);
+    }
+  } catch (err) {
+    console.error('Download error:', err);
+    window.open(tool.downloadUrl, '_blank');
+    showToast(`Opened ${tool.fileName}. Press Ctrl+S to save as .BAT`);
+  } finally {
+    if (btn) {
+      setTimeout(() => {
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+      }, 1400);
+    }
+  }
+};
+
+// -------------------------------------------------------------
+// Download Full Suite ZIP Archive
+// -------------------------------------------------------------
+window.downloadAllZip = function(event) {
+  if (event) event.preventDefault();
+  const zipUrl = 'https://github.com/shreyashmane-dev/dev-tools-suite/archive/refs/heads/main.zip';
+  showToast('Starting complete DEV Tools Suite (.ZIP) download...');
+  const a = document.createElement('a');
+  a.href = zipUrl;
+  a.download = 'dev-tools-suite-main.zip';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+};
+
+// -------------------------------------------------------------
+// Interactive Command Switcher (PowerShell vs CMD)
+// -------------------------------------------------------------
+const SUITE_COMMANDS = {
+  powershell: 'irm https://raw.githubusercontent.com/shreyashmane-dev/dev-tools-suite/main/launcher/DevLauncher.ps1 | iex',
+  cmd: 'powershell -ep bypass -c "irm https://raw.githubusercontent.com/shreyashmane-dev/dev-tools-suite/main/launcher/DevLauncher.ps1 | iex"'
+};
+
+let currentShell = 'powershell';
+
+window.initCommandSwitcher = function() {
+  window.switchCommandTab('powershell');
+};
+
+window.switchCommandTab = function(shellType) {
+  currentShell = shellType;
+  const cmdTextElem = document.getElementById('mainCmdText');
+  const psTab = document.getElementById('tabPs');
+  const cmdTab = document.getElementById('tabCmd');
+
+  if (cmdTextElem) {
+    cmdTextElem.textContent = SUITE_COMMANDS[shellType] || SUITE_COMMANDS.powershell;
+  }
+
+  if (psTab && cmdTab) {
+    psTab.classList.toggle('active', shellType === 'powershell');
+    cmdTab.classList.toggle('active', shellType === 'cmd');
+  }
+};
+
+window.copyMainCommand = function(btn) {
+  const cmd = SUITE_COMMANDS[currentShell] || SUITE_COMMANDS.powershell;
+  copyPowerShell(btn, cmd);
+};
