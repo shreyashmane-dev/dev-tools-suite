@@ -19,7 +19,8 @@ $Tools = @(
     'tools\dev-file-organizer\DevFileOrganizer.bat',
     'tools\dev-clean-master\DevCleanMaster.bat',
     'tools\dev-quick-server\DevQuickServer.bat',
-    'tools\dev-key-forge\DevKeyForge.bat'
+    'tools\dev-key-forge\DevKeyForge.bat',
+    'tools\dev-ram-booster\DevRamBooster.bat'
 )
 
 $TotalChecked = 0

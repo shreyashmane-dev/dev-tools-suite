@@ -403,6 +403,56 @@
                                   ]
                   },
                   {
+                      "id":  "dev-ram-booster",
+                      "shortId":  "ram-booster",
+                      "name":  "DEV RAM Booster",
+                      "title":  "RAM Booster",
+                      "tagline":  "High-Performance Laptop RAM Cache Cleaner \u0026 Memory Optimizer",
+                      "description":  "Reclaims gigabytes of physical RAM, purges Windows standby file cache, vacuums bloated application working sets, and accelerates laptop performance.",
+                      "version":  "1.0.0",
+                      "status":  "Production Ready",
+                      "batPath":  "tools/dev-ram-booster/DevRamBooster.bat",
+                      "fileName":  "DevRamBooster.bat",
+                      "fileSize":  "26 KB",
+                      "sha256":  "F1EF11A2F88F10398B00BDD06FA5743F680C7BCF509B7CC6E22AC10C373591DE",
+                      "powershellCommand":  "$f = \"$env:TEMP\\DevLauncher.ps1\"; irm \u0027https://raw.githubusercontent.com/shreyashmane-dev/dev-tools-suite/main/launcher/DevLauncher.ps1\u0027 -OutFile $f; \u0026 $f -Tool ram-booster; rm $f",
+                      "downloadUrl":  "https://raw.githubusercontent.com/shreyashmane-dev/dev-tools-suite/main/tools/dev-ram-booster/DevRamBooster.bat",
+                      "githubUrl":  "https://github.com/shreyashmane-dev/dev-tools-suite/blob/main/tools/dev-ram-booster/DevRamBooster.bat",
+                      "icon":  "activity",
+                      "features":  [
+                                       "One-click Quick Laptop RAM Boost",
+                                       "Standby List \u0026 RAM file cache purge",
+                                       "Process working set vacuum (EmptyWorkingSet)",
+                                       "Real-time RAM telemetry \u0026 memory pressure gauge",
+                                       "Top RAM hog analyzer \u0026 targeted trimmer",
+                                       "Windows Explorer \u0026 DNS cache purge"
+                                   ],
+                      "requirements":  {
+                                           "os":  "Windows 10 / 11 (x64, ARM64)",
+                                           "shell":  "cmd.exe or Windows Terminal",
+                                           "dependencies":  "Built-in Windows components",
+                                           "privileges":  "Standard user access"
+                                       },
+                      "preview":  [
+                                      "+==============================================================================+",
+                                      "|    ____  _______     __   ______            __        _____       _ __       |",
+                                      "|   / __ \\/ ____/ |   / /  /_  __/___  ____  / /____   / ___/__  __(_) /____   |",
+                                      "|  / / / / __/  | |  / /    / / / __ \\/ __ \\/ / ___/   \\__ \\/ / / / / __/ _ \\  |",
+                                      "| / /_/ / /___  | | / /    / / / /_/ / /_/ / (__  )   ___/ / /_/ / / /_/  __/  |",
+                                      "|/_____/_____/  |___/     /_/  \\____/\\____/_/____/   /____/\\__,_/_/\\__/\\___/   |",
+                                      "+==============================================================================+",
+                                      ":: ",
+                                      "DEV RAM Booster",
+                                      "          [ Provider: AnoS :: Version: v1.0.0 :: Windows x64 ]",
+                                      "--------------------------------------------------------------------------------",
+                                      "",
+                                      "  OPERATIONS MENU",
+                                      "    [1] Start Primary Action",
+                                      "    [2] Options \u0026 System Telemetry",
+                                      "    [0] Exit"
+                                  ]
+                  },
+                  {
                       "id":  "dev-setup-center",
                       "shortId":  "setup-center",
                       "name":  "DEV Setup Center",

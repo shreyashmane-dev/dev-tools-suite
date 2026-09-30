@@ -160,6 +160,14 @@ Write-Host "`n>>> Testing DevSetupCenter..." -ForegroundColor Yellow
 Run-ToolTest -ToolName "DevSetupCenter" -BatRelPath "tools\dev-setup-center\DevSetupCenter.bat" -CliArg "0" -ExpectedOutputPattern "DEV SETUP CENTER" -TestDescription "Menu launch & exit [0]"
 Run-ToolTest -ToolName "DevSetupCenter" -BatRelPath "tools\dev-setup-center\DevSetupCenter.bat" -CliArg "9" -ExpectedOutputPattern "ABOUT DEV SETUP CENTER" -TestDescription "About DEV [9]"
 
+# --- TEST 11: DevRamBooster (Laptop RAM Cache Cleaner, Working Sets & Telemetry)
+Write-Host "`n>>> Testing DevRamBooster..." -ForegroundColor Yellow
+Run-ToolTest -ToolName "DevRamBooster" -BatRelPath "tools\dev-ram-booster\DevRamBooster.bat" -CliArg "0" -ExpectedOutputPattern "DEV RAM BOOSTER" -TestDescription "Menu launch & exit [0]"
+Run-ToolTest -ToolName "DevRamBooster" -BatRelPath "tools\dev-ram-booster\DevRamBooster.bat" -CliArg "1" -ExpectedOutputPattern "LAPTOP RAM BOOST SUMMARY" -TestDescription "Quick RAM Boost [1]"
+Run-ToolTest -ToolName "DevRamBooster" -BatRelPath "tools\dev-ram-booster\DevRamBooster.bat" -CliArg "5" -ExpectedOutputPattern "TOP MEMORY CONSUMERS" -TestDescription "Top RAM Hogs [5]"
+Run-ToolTest -ToolName "DevRamBooster" -BatRelPath "tools\dev-ram-booster\DevRamBooster.bat" -CliArg "6" -ExpectedOutputPattern "FLUSH NETWORK" -TestDescription "Flush Network Caches [6]"
+Run-ToolTest -ToolName "DevRamBooster" -BatRelPath "tools\dev-ram-booster\DevRamBooster.bat" -CliArg "7" -ExpectedOutputPattern "MEMORY PRESSURE GAUGE" -TestDescription "RAM Telemetry Gauge [7]"
+
 Write-Host "`n============================================================" -ForegroundColor Cyan
 Write-Host " TEST RESULTS SUMMARY" -ForegroundColor Cyan
 Write-Host "============================================================" -ForegroundColor Cyan

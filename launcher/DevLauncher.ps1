@@ -144,6 +144,15 @@ $ToolsCatalog = @(
         RelPath     = 'tools/dev-key-forge/DevKeyForge.bat'
         Description = 'SSH keypairs, localhost SSL certificates, JWT secrets, and file hasher'
         Sha256      = ''
+    },
+    @{
+        Id          = 'ram-booster'
+        Alias       = @('11', 'ram', 'booster', 'ram-booster', 'dev-ram-booster', 'memory', 'cache')
+        Name        = 'DEV RAM Booster'
+        File        = 'DevRamBooster.bat'
+        RelPath     = 'tools/dev-ram-booster/DevRamBooster.bat'
+        Description = 'Laptop RAM cache cleaner, working set vacuum, and memory optimizer'
+        Sha256      = ''
     }
 )
 

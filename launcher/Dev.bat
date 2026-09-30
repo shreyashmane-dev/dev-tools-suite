@@ -3,7 +3,7 @@ setlocal EnableExtensions EnableDelayedExpansion
 
 REM ============================================================
 REM DEV TOOLS SUITE :: MASTER CMD & BATCH LAUNCHER
-REM Interactive Terminal Launcher for all 10 Developer Tools
+REM Interactive Terminal Launcher for all 11 Developer Tools
 REM Provider: AnoS
 REM Version: 1.0.0
 REM ============================================================
@@ -63,12 +63,13 @@ echo   !C_CYAN![7 ]!C_RESET! !C_WHITE!DEV File Organizer!C_RESET!    !C_GRAY!Cod
 echo   !C_CYAN![8 ]!C_RESET! !C_WHITE!DEV Clean Master!C_RESET!      !C_GRAY!Deep cleaner: node_modules, cache, artifacts!C_RESET!
 echo   !C_CYAN![9 ]!C_RESET! !C_WHITE!DEV Quick Server!C_RESET!      !C_GRAY!Instant HTTP server, IP viewer ^& port killer!C_RESET!
 echo   !C_CYAN![10]!C_RESET! !C_WHITE!DEV Key Forge!C_RESET!         !C_GRAY!SSH keys, SSL certs, JWT secrets ^& hash tools!C_RESET!
+echo   !C_CYAN![11]!C_RESET! !C_WHITE!DEV RAM Booster!C_RESET!        !C_GRAY!Laptop RAM cache cleaner, working sets ^& speed booster!C_RESET!
 echo.
 echo   !C_RED![0 ]!C_RESET! !C_GRAY!Exit Suite!C_RESET!
 echo.
 echo   !C_CYAN!--------------------------------------------------------------------------------!C_RESET!
 set "CHOICE="
-set /p "CHOICE=  Enter selection [0-10]: "
+set /p "CHOICE=  Enter selection [0-11]: "
 if not defined CHOICE goto :MAIN_MENU
 
 :ROUTE_CHOICE
@@ -84,6 +85,7 @@ if "%CHOICE%"=="7"  set "SUB_PATH=tools\dev-file-organizer\DevFileOrganizer.bat"
 if "%CHOICE%"=="8"  set "SUB_PATH=tools\dev-clean-master\DevCleanMaster.bat"& goto :RUN_TOOL
 if "%CHOICE%"=="9"  set "SUB_PATH=tools\dev-quick-server\DevQuickServer.bat"& goto :RUN_TOOL
 if "%CHOICE%"=="10" set "SUB_PATH=tools\dev-key-forge\DevKeyForge.bat"& goto :RUN_TOOL
+if "%CHOICE%"=="11" set "SUB_PATH=tools\dev-ram-booster\DevRamBooster.bat"& goto :RUN_TOOL
 
 echo.
 echo !C_RED!  [ERROR] Invalid selection: %CHOICE%!C_RESET!

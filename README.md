@@ -15,10 +15,10 @@
 [![Windows 10 / 11](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-blue?logo=windows)](https://github.com/shreyashmane-dev/dev-tools-suite)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Release: v1.0.0](https://img.shields.io/badge/Release-v1.0.0-cyan.svg)](release/hashes.txt)
-[![Tools Active](https://img.shields.io/badge/Tools-10%20Active-brightgreen.svg)](#the-10-tools)
+[![Tools Active](https://img.shields.io/badge/Tools-11%20Active-brightgreen.svg)](#the-11-tools)
 [![Provider: AnoS](https://img.shields.io/badge/Provider-AnoS-06b6d4.svg)](https://github.com/shreyashmane-dev/dev-tools-suite)
 
-A collection of practical, production-grade Windows developer tools built for automated environment setup, diagnostics, project scaffolding, Git workflows, workspace organization, build artifact cleanup, local HTTP serving, and cryptographic key generation.
+A collection of practical, production-grade Windows developer tools built for automated environment setup, diagnostics, project scaffolding, Git workflows, workspace organization, build artifact cleanup, local HTTP serving, cryptographic key generation, and high-performance RAM cache optimization.
 
 Every tool in the suite is a **self-contained, standalone `.BAT` script** that requires zero external runtime dependencies and provides a clean, unified terminal visual identity.
 
@@ -31,7 +31,7 @@ Every tool in the suite is a **self-contained, standalone `.BAT` script** that r
 - [Two Ways to Use DEV](#two-ways-to-use-dev)
   - [Method 1: Run via One-Line PowerShell Command](#method-1-run-via-one-line-powershell-command)
   - [Method 2: Standalone .BAT Download](#method-2-standalone-bat-download)
-- [The 10 Tools](#the-10-tools)
+- [The 11 Tools](#the-11-tools)
   - [1. DEV Setup Center](#1-dev-setup-center)
   - [2. DEV Project Forge](#2-dev-project-forge)
   - [3. DEV Doctor](#3-dev-doctor)
@@ -42,6 +42,7 @@ Every tool in the suite is a **self-contained, standalone `.BAT` script** that r
   - [8. DEV Clean Master](#8-dev-clean-master)
   - [9. DEV Quick Server](#9-dev-quick-server)
   - [10. DEV Key Forge](#10-dev-key-forge)
+  - [11. DEV RAM Booster](#11-dev-ram-booster)
 - [Adding More Tools (Automated Workflow)](#adding-more-tools-automated-workflow)
 - [Frontend UI/UX & SEO Architecture](#frontend-uiux--seo-architecture)
 - [PowerShell Web Launcher](#powershell-web-launcher)
@@ -86,9 +87,9 @@ All ten tools share one visual identity:
 
 DEV Tools Suite is designed for maximum developer flexibility. You can use any tool through two primary workflows:
 
-### Method 1: Run via One-Line Master Command (All 10 Tools)
+### Method 1: Run via One-Line Master Command (All 11 Tools)
 
-No installation or pre-cloning required. Simply copy the verified one-liner command below into **PowerShell** or **Command Prompt (CMD)** and press <kbd>Enter</kbd> to launch the interactive master menu with access to all 10 tools:
+No installation or pre-cloning required. Simply copy the verified one-liner command below into **PowerShell** or **Command Prompt (CMD)** and press <kbd>Enter</kbd> to launch the interactive master menu with access to all 11 tools:
 
 #### In PowerShell (Windows Terminal / PowerShell 5.1 & 7+):
 ```powershell
@@ -123,6 +124,7 @@ powershell -ep bypass -c "& ([scriptblock]::Create((irm https://raw.githubuserco
    - `-Tool clean` &rarr; DEV Clean Master
    - `-Tool server` &rarr; DEV Quick Server
    - `-Tool keygen` &rarr; DEV Key Forge
+   - `-Tool ram` &rarr; DEV RAM Booster
 3. Paste the command into PowerShell and press <kbd>Enter</kbd>.
 4. The launcher downloads the tool to `%LOCALAPPDATA%\DevToolsSuite`, verifies the file size, and executes the batch file locally.
 
@@ -141,7 +143,7 @@ Download self-contained batch scripts to your computer and run them 100% offline
 
 ---
 
-## The 10 Tools
+## The 11 Tools
 
 ### 1. DEV Setup Center
 **File:** [`tools/dev-setup-center/DevSetupCenter.bat`](tools/dev-setup-center/DevSetupCenter.bat)  
@@ -316,6 +318,20 @@ Installed: 4                          Missing: 4
 
 ---
 
+### 11. DEV RAM Booster
+**File:** [`tools/dev-ram-booster/DevRamBooster.bat`](tools/dev-ram-booster/DevRamBooster.bat)  
+**Short ID:** `ram` | **Category:** Utilities  
+**Purpose:** High-performance laptop RAM cache cleaner, working set vacuum, and memory optimizer.
+
+- **Quick Laptop RAM Boost**: One-click multi-stage recovery that vacuums process working sets, purges standby file caches, flushes DNS, and calculates memory reclaimed before vs after.
+- **Standby List Cache Purge**: Clears inactive Windows standby file cache and modified pages directly via native Windows NT memory APIs (`NtSetSystemInformation`).
+- **Empty All Working Sets**: Calls `psapi.dll` `EmptyWorkingSet` across all accessible processes, forcing background browsers and Electron apps to release idle physical RAM.
+- **Windows Explorer & Shell Flush**: Trims Explorer working set or performs a clean shell restart to purge thumbnail and icon cache memory leaks.
+- **Top RAM Hog Analyzer**: Real-time process memory profiler listing the top 15 memory-consuming applications with PID and RAM usage, plus targeted trimming.
+- **Real-Time RAM Telemetry & Gauge**: Visual ASCII/ANSI memory pressure gauge with live load classification (`[HEALTHY]`, `[ELEVATED LOAD]`, `[HIGH PRESSURE]`).
+
+---
+
 ## Adding More Tools (Automated Workflow)
 
 When you create or upload a new tool to the suite, DEV Tools Suite provides an automated synchronization script that updates the entire project catalog:
@@ -410,6 +426,7 @@ All release artifacts are cryptographically hashed using SHA-256. Hashes are per
 | **DEV Package Hub** | `DevPackageHub.bat` | 14 KB | `694D538D4A88...` | [Download](tools/dev-package-hub/DevPackageHub.bat) |
 | **DEV Project Forge** | `DevProjectForge.bat` | 23 KB | `AF4D20DC9D87...` | [Download](tools/dev-project-forge/DevProjectForge.bat) |
 | **DEV Quick Server** | `DevQuickServer.bat` | 12 KB | `0BF778CF4FA7...` | [Download](tools/dev-quick-server/DevQuickServer.bat) |
+| **DEV RAM Booster** | `DevRamBooster.bat` | 26 KB | `F1EF11A2F88F...` | [Download](tools/dev-ram-booster/DevRamBooster.bat) |
 | **DEV Setup Center** | `DevSetupCenter.bat` | 27 KB | `5E9CFA98516B...` | [Download](tools/dev-setup-center/DevSetupCenter.bat) |
 | **DEV System Toolkit** | `DevSystemToolkit.bat` | 15 KB | `C2878727CD62...` | [Download](tools/dev-system-toolkit/DevSystemToolkit.bat) |
 
@@ -460,8 +477,11 @@ DevToolsSuite/
 │   ├── dev-quick-server/            # Tool 9: Local HTTP server
 │   │   ├── DevQuickServer.bat
 │   │   └── launch.ps1
-│   └── dev-key-forge/               # Tool 10: SSH & cryptographic keygen
-│       ├── DevKeyForge.bat
+│   ├── dev-key-forge/               # Tool 10: SSH & cryptographic keygen
+│   │   ├── DevKeyForge.bat
+│   │   └── launch.ps1
+│   └── dev-ram-booster/             # Tool 11: Laptop RAM cache & memory booster
+│       ├── DevRamBooster.bat
 │       └── launch.ps1
 ├── launcher/
 │   └── DevLauncher.ps1              # Unified PowerShell web launcher

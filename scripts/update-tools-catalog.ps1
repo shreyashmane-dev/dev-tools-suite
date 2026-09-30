@@ -114,6 +114,12 @@ foreach ($folder in $ToolFolders) {
         $desc = "Generates secure SSH keypairs, localhost SSL certificates, cryptographic API tokens, JWT signing secrets, and file hashes."
         $icon = "cpu"
         $features = @("SSH key generation (ed25519 and RSA-4096)", "Instant localhost SSL/TLS self-signed certificates", "Cryptographically secure API keys and secrets", "JWT HMAC-SHA256 signing secret generator", "MD5, SHA-256, and SHA-512 file hasher")
+    } elseif ($shortId -eq 'ram-booster') {
+        $name = "DEV RAM Booster"
+        $tagline = "High-Performance Laptop RAM Cache Cleaner & Memory Optimizer"
+        $desc = "Reclaims gigabytes of physical RAM, purges Windows standby file cache, vacuums bloated application working sets, and accelerates laptop performance."
+        $icon = "activity"
+        $features = @("One-click Quick Laptop RAM Boost", "Standby List & RAM file cache purge", "Process working set vacuum (EmptyWorkingSet)", "Real-time RAM telemetry & memory pressure gauge", "Top RAM hog analyzer & targeted trimmer", "Windows Explorer & DNS cache purge")
     }
 
     $RepoOwner = 'shreyashmane-dev'
