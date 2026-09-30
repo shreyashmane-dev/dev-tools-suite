@@ -254,6 +254,56 @@
                                   ]
                   },
                   {
+                      "id":  "dev-multi-net-booster",
+                      "shortId":  "multi-net-booster",
+                      "name":  "DEV Multi-Net Booster",
+                      "title":  "Multi-Net Booster",
+                      "tagline":  "Multi-Network Wi-Fi Aggregator \u0026 Parallel Speed Booster",
+                      "description":  "Bonds multiple Wi-Fi cards, USB dongles, phone tethering, and Ethernet adapters into a local round-robin dispatch proxy to maximize download speeds and connection reliability.",
+                      "version":  "1.0.0",
+                      "status":  "Production Ready",
+                      "batPath":  "tools/dev-multi-net-booster/DevMultiNetBooster.bat",
+                      "fileName":  "DevMultiNetBooster.bat",
+                      "fileSize":  "18 KB",
+                      "sha256":  "18DD5DC19D03F3EEBFB8C7738446B922CE4E8982B458DA2AAED2E66872C1E4DC",
+                      "powershellCommand":  "$f = \"$env:TEMP\\DevLauncher.ps1\"; irm \u0027https://raw.githubusercontent.com/shreyashmane-dev/dev-tools-suite/main/launcher/DevLauncher.ps1\u0027 -OutFile $f; \u0026 $f -Tool multi-net-booster; rm $f",
+                      "downloadUrl":  "https://raw.githubusercontent.com/shreyashmane-dev/dev-tools-suite/main/tools/dev-multi-net-booster/DevMultiNetBooster.bat",
+                      "githubUrl":  "https://github.com/shreyashmane-dev/dev-tools-suite/blob/main/tools/dev-multi-net-booster/DevMultiNetBooster.bat",
+                      "icon":  "wifi",
+                      "features":  [
+                                       "Local multi-interface dispatch proxy (HTTP/HTTPS)",
+                                       "Aggregates bandwidth across 2 to 10 network connections",
+                                       "Supports Wi-Fi dongles, phone USB tethering \u0026 Ethernet",
+                                       "Equal-Cost Multi-Path (ECMP) routing metric tuner",
+                                       "Per-adapter socket latency and throughput benchmark",
+                                       "1-Click Windows system proxy integration"
+                                   ],
+                      "requirements":  {
+                                           "os":  "Windows 10 / 11 (x64, ARM64)",
+                                           "shell":  "cmd.exe or Windows Terminal",
+                                           "dependencies":  "Built-in Windows components",
+                                           "privileges":  "Standard user access"
+                                       },
+                      "preview":  [
+                                      "+==============================================================================+",
+                                      "|    ____  _______     __   ______            __        _____       _ __       |",
+                                      "|   / __ \\/ ____/ |   / /  /_  __/___  ____  / /____   / ___/__  __(_) /____   |",
+                                      "|  / / / / __/  | |  / /    / / / __ \\/ __ \\/ / ___/   \\__ \\/ / / / / __/ _ \\  |",
+                                      "| / /_/ / /___  | | / /    / / / /_/ / /_/ / (__  )   ___/ / /_/ / / /_/  __/  |",
+                                      "|/_____/_____/  |___/     /_/  \\____/\\____/_/____/   /____/\\__,_/_/\\__/\\___/   |",
+                                      "+==============================================================================+",
+                                      ":: ",
+                                      "DEV Multi-Net Booster",
+                                      "          [ Provider: AnoS :: Version: v1.0.0 :: Windows x64 ]",
+                                      "--------------------------------------------------------------------------------",
+                                      "",
+                                      "  OPERATIONS MENU",
+                                      "    [1] Start Primary Action",
+                                      "    [2] Options \u0026 System Telemetry",
+                                      "    [0] Exit"
+                                  ]
+                  },
+                  {
                       "id":  "dev-package-hub",
                       "shortId":  "package-hub",
                       "name":  "DEV Package Hub",

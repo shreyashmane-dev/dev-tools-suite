@@ -64,12 +64,13 @@ echo   !C_CYAN![8 ]!C_RESET! !C_WHITE!DEV Clean Master!C_RESET!      !C_GRAY!Dee
 echo   !C_CYAN![9 ]!C_RESET! !C_WHITE!DEV Quick Server!C_RESET!      !C_GRAY!Instant HTTP server, IP viewer ^& port killer!C_RESET!
 echo   !C_CYAN![10]!C_RESET! !C_WHITE!DEV Key Forge!C_RESET!         !C_GRAY!SSH keys, SSL certs, JWT secrets ^& hash tools!C_RESET!
 echo   !C_CYAN![11]!C_RESET! !C_WHITE!DEV RAM Booster!C_RESET!        !C_GRAY!Laptop RAM cache cleaner, working sets ^& speed booster!C_RESET!
+echo   !C_CYAN![12]!C_RESET! !C_WHITE!DEV Multi-Net Booster!C_RESET!   !C_GRAY!Multi-adapter Wi-Fi aggregator, dispatch proxy ^& speed booster!C_RESET!
 echo.
 echo   !C_RED![0 ]!C_RESET! !C_GRAY!Exit Suite!C_RESET!
 echo.
 echo   !C_CYAN!--------------------------------------------------------------------------------!C_RESET!
 set "CHOICE="
-set /p "CHOICE=  Enter selection [0-11]: "
+set /p "CHOICE=  Enter selection [0-12]: "
 if not defined CHOICE goto :MAIN_MENU
 
 :ROUTE_CHOICE
@@ -86,6 +87,7 @@ if "%CHOICE%"=="8"  set "SUB_PATH=tools\dev-clean-master\DevCleanMaster.bat"& go
 if "%CHOICE%"=="9"  set "SUB_PATH=tools\dev-quick-server\DevQuickServer.bat"& goto :RUN_TOOL
 if "%CHOICE%"=="10" set "SUB_PATH=tools\dev-key-forge\DevKeyForge.bat"& goto :RUN_TOOL
 if "%CHOICE%"=="11" set "SUB_PATH=tools\dev-ram-booster\DevRamBooster.bat"& goto :RUN_TOOL
+if "%CHOICE%"=="12" set "SUB_PATH=tools\dev-multi-net-booster\DevMultiNetBooster.bat"& goto :RUN_TOOL
 
 echo.
 echo !C_RED!  [ERROR] Invalid selection: %CHOICE%!C_RESET!

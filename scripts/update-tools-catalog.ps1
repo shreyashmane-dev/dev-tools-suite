@@ -120,6 +120,12 @@ foreach ($folder in $ToolFolders) {
         $desc = "Reclaims gigabytes of physical RAM, purges Windows standby file cache, vacuums bloated application working sets, and accelerates laptop performance."
         $icon = "activity"
         $features = @("One-click Quick Laptop RAM Boost", "Standby List & RAM file cache purge", "Process working set vacuum (EmptyWorkingSet)", "Real-time RAM telemetry & memory pressure gauge", "Top RAM hog analyzer & targeted trimmer", "Windows Explorer & DNS cache purge")
+    } elseif ($shortId -eq 'multi-net-booster') {
+        $name = "DEV Multi-Net Booster"
+        $tagline = "Multi-Network Wi-Fi Aggregator & Parallel Speed Booster"
+        $desc = "Bonds multiple Wi-Fi cards, USB dongles, phone tethering, and Ethernet adapters into a local round-robin dispatch proxy to maximize download speeds and connection reliability."
+        $icon = "wifi"
+        $features = @("Local multi-interface dispatch proxy (HTTP/HTTPS)", "Aggregates bandwidth across 2 to 10 network connections", "Supports Wi-Fi dongles, phone USB tethering & Ethernet", "Equal-Cost Multi-Path (ECMP) routing metric tuner", "Per-adapter socket latency and throughput benchmark", "1-Click Windows system proxy integration")
     }
 
     $RepoOwner = 'shreyashmane-dev'

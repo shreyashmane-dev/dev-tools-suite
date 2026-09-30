@@ -20,7 +20,8 @@ $Tools = @(
     'tools\dev-clean-master\DevCleanMaster.bat',
     'tools\dev-quick-server\DevQuickServer.bat',
     'tools\dev-key-forge\DevKeyForge.bat',
-    'tools\dev-ram-booster\DevRamBooster.bat'
+    'tools\dev-ram-booster\DevRamBooster.bat',
+    'tools\dev-multi-net-booster\DevMultiNetBooster.bat'
 )
 
 $TotalChecked = 0

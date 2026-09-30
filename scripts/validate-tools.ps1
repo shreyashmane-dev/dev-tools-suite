@@ -51,7 +51,8 @@ $Tools = @(
     'tools/dev-clean-master/DevCleanMaster.bat',
     'tools/dev-quick-server/DevQuickServer.bat',
     'tools/dev-key-forge/DevKeyForge.bat',
-    'tools/dev-ram-booster/DevRamBooster.bat'
+    'tools/dev-ram-booster/DevRamBooster.bat',
+    'tools/dev-multi-net-booster/DevMultiNetBooster.bat'
 )
 
 Write-Host "[1/6] Validating Standalone BAT Tools..." -ForegroundColor Cyan
@@ -87,7 +88,7 @@ $launcherPath = Join-Path $RepoRoot 'launcher\DevLauncher.ps1'
 Assert-Check "Central launcher exists: launcher/DevLauncher.ps1" (Test-Path -LiteralPath $launcherPath)
 if (Test-Path -LiteralPath $launcherPath) {
     $lContent = Get-Content -Path $launcherPath -Raw
-    Assert-Check "Launcher contains all 11 tool aliases" ($lContent -match 'setup' -and $lContent -match 'forge' -and $lContent -match 'doctor' -and $lContent -match 'github' -and $lContent -match 'package' -and $lContent -match 'system' -and $lContent -match 'organizer' -and $lContent -match 'clean' -and $lContent -match 'server' -and $lContent -match 'key' -and $lContent -match 'ram')
+    Assert-Check "Launcher contains all 12 tool aliases" ($lContent -match 'setup' -and $lContent -match 'forge' -and $lContent -match 'doctor' -and $lContent -match 'github' -and $lContent -match 'package' -and $lContent -match 'system' -and $lContent -match 'organizer' -and $lContent -match 'clean' -and $lContent -match 'server' -and $lContent -match 'key' -and $lContent -match 'ram' -and $lContent -match 'multi-net')
 }
 
 # 4. Tool Metadata (tools.json)
@@ -98,7 +99,7 @@ Assert-Check "Metadata file exists: site/data/tools.json" (Test-Path -LiteralPat
 if (Test-Path -LiteralPath $jsonPath) {
     try {
         $data = Get-Content -Path $jsonPath -Raw -Encoding UTF8 | ConvertFrom-Json
-        Assert-Check "tools.json is valid JSON with 11 tools" ($data.tools.Count -eq 11) "Found $($data.tools.Count) tools"
+        Assert-Check "tools.json is valid JSON with 12 tools" ($data.tools.Count -eq 12) "Found $($data.tools.Count) tools"
         Assert-Check "Suite provider is '$ExpectedProvider'" ($data.suite.provider -eq $ExpectedProvider)
         Assert-Check "Suite version is '$ExpectedVersion'" ($data.suite.version -eq $ExpectedVersion)
 
@@ -119,7 +120,7 @@ $hashesPath = Join-Path $RepoRoot 'release\hashes.txt'
 Assert-Check "release/hashes.txt exists" (Test-Path -LiteralPath $hashesPath)
 if (Test-Path -LiteralPath $hashesPath) {
     $hashLines = Get-Content -Path $hashesPath | Where-Object { $_ -match '^[A-Fa-f0-9]{64}' }
-    Assert-Check "hashes.txt contains 11 SHA-256 hashes" ($hashLines.Count -eq 11) "Found $($hashLines.Count) hash lines"
+    Assert-Check "hashes.txt contains 12 SHA-256 hashes" ($hashLines.Count -eq 12) "Found $($hashLines.Count) hash lines"
 }
 
 # 6. Check Forbidden Personal Name

@@ -168,6 +168,14 @@ Run-ToolTest -ToolName "DevRamBooster" -BatRelPath "tools\dev-ram-booster\DevRam
 Run-ToolTest -ToolName "DevRamBooster" -BatRelPath "tools\dev-ram-booster\DevRamBooster.bat" -CliArg "6" -ExpectedOutputPattern "FLUSH NETWORK" -TestDescription "Flush Network Caches [6]"
 Run-ToolTest -ToolName "DevRamBooster" -BatRelPath "tools\dev-ram-booster\DevRamBooster.bat" -CliArg "7" -ExpectedOutputPattern "MEMORY PRESSURE GAUGE" -TestDescription "RAM Telemetry Gauge [7]"
 
+# --- TEST 12: DevMultiNetBooster (Multi-Adapter Wi-Fi Aggregator & Dispatch Proxy)
+Write-Host "`n>>> Testing DevMultiNetBooster..." -ForegroundColor Yellow
+Run-ToolTest -ToolName "DevMultiNetBooster" -BatRelPath "tools\dev-multi-net-booster\DevMultiNetBooster.bat" -CliArg "0" -ExpectedOutputPattern "DEV Multi-Net Booster" -TestDescription "Menu launch & exit [0]"
+Run-ToolTest -ToolName "DevMultiNetBooster" -BatRelPath "tools\dev-multi-net-booster\DevMultiNetBooster.bat" -CliArg "1" -ExpectedOutputPattern "ACTIVE NETWORK INTERFACES" -TestDescription "Scan & List Adapters [1]"
+Run-ToolTest -ToolName "DevMultiNetBooster" -BatRelPath "tools\dev-multi-net-booster\DevMultiNetBooster.bat" -CliArg "2" -ExpectedOutputPattern "Dispatch Proxy" -TestDescription "Multi-Net Dispatch Proxy [2]"
+Run-ToolTest -ToolName "DevMultiNetBooster" -BatRelPath "tools\dev-multi-net-booster\DevMultiNetBooster.bat" -CliArg "6" -ExpectedOutputPattern "BENCHMARK" -TestDescription "Network Benchmark [6]"
+Run-ToolTest -ToolName "DevMultiNetBooster" -BatRelPath "tools\dev-multi-net-booster\DevMultiNetBooster.bat" -CliArg "7" -ExpectedOutputPattern "SETUP GUIDE" -TestDescription "Hardware Multi-Wi-Fi Guide [7]"
+
 Write-Host "`n============================================================" -ForegroundColor Cyan
 Write-Host " TEST RESULTS SUMMARY" -ForegroundColor Cyan
 Write-Host "============================================================" -ForegroundColor Cyan

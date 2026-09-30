@@ -31,7 +31,7 @@ Every tool in the suite is a **self-contained, standalone `.BAT` script** that r
 - [Two Ways to Use DEV](#two-ways-to-use-dev)
   - [Method 1: Run via One-Line PowerShell Command](#method-1-run-via-one-line-powershell-command)
   - [Method 2: Standalone .BAT Download](#method-2-standalone-bat-download)
-- [The 11 Tools](#the-11-tools)
+- [The 12 Tools](#the-12-tools)
   - [1. DEV Setup Center](#1-dev-setup-center)
   - [2. DEV Project Forge](#2-dev-project-forge)
   - [3. DEV Doctor](#3-dev-doctor)
@@ -43,6 +43,7 @@ Every tool in the suite is a **self-contained, standalone `.BAT` script** that r
   - [9. DEV Quick Server](#9-dev-quick-server)
   - [10. DEV Key Forge](#10-dev-key-forge)
   - [11. DEV RAM Booster](#11-dev-ram-booster)
+  - [12. DEV Multi-Net Booster](#12-dev-multi-net-booster)
 - [Adding More Tools (Automated Workflow)](#adding-more-tools-automated-workflow)
 - [Frontend UI/UX & SEO Architecture](#frontend-uiux--seo-architecture)
 - [PowerShell Web Launcher](#powershell-web-launcher)
@@ -58,11 +59,11 @@ Every tool in the suite is a **self-contained, standalone `.BAT` script** that r
 
 ## Overview
 
-Modern Windows developers spend valuable hours configuring toolchains, debugging broken PATH entries, creating boilerplate code, and setting up Git identities. **DEV Tools Suite** provides a single, polished product family of ten focused terminal tools that solve these friction points.
+Modern Windows developers spend valuable hours configuring toolchains, debugging broken PATH entries, creating boilerplate code, and setting up Git identities. **DEV Tools Suite** provides a single, polished product family of twelve focused terminal tools that solve these friction points.
 
 ### Shared Terminal Design Language
 
-All ten tools share one visual identity:
+All twelve tools share one visual identity:
 - **Clean ASCII Typography**: No decorative Unicode box-drawing characters that get corrupted across different CMD codepages.
 - **Controlled ANSI Colors**: Cyan and blue for primary brand elements, bright white for titles, green for success, yellow for warnings, and red for errors.
 - **Two-Column Dashboard**: Displays `INSTALLED` and `MISSING` software side by side with equal spacing and exact totals.
@@ -74,7 +75,7 @@ All ten tools share one visual identity:
 ## Key Features
 
 - **Zero Runtime Dependencies**: Written in pure Windows Batch and PowerShell — works out of the box on clean Windows installations.
-- **10 Production-Ready Utilities**: Covers setup, packages, scaffolding, diagnostics, Git workflows, workspace organization, cache cleaning, local serving, and key generation.
+- **12 Production-Ready Utilities**: Covers setup, packages, scaffolding, diagnostics, Git workflows, workspace organization, cache cleaning, local serving, cryptography, RAM optimization, and multi-network bonding.
 - **Two Ways to Use**: Launch instantly from PowerShell with local caching and SHA-256 verification, or download standalone `.BAT` files for 100% offline usage.
 - **Automated Catalog Engine**: Drop a new tool into `tools/` and run `.\scripts\update-tools-catalog.ps1` to automatically update hashes, `tools.json`, and the website.
 - **Modern Responsive Frontend**: Top-tier dark visual aesthetics with a 3-way theme switcher (`Cyber Dark`, `Midnight Eclipse`, `Studio Light`), real-time search, category filtering, interactive terminal hero, and modal dialogs.
@@ -87,9 +88,9 @@ All ten tools share one visual identity:
 
 DEV Tools Suite is designed for maximum developer flexibility. You can use any tool through two primary workflows:
 
-### Method 1: Run via One-Line Master Command (All 11 Tools)
+### Method 1: Run via One-Line Master Command (All 12 Tools)
 
-No installation or pre-cloning required. Simply copy the verified one-liner command below into **PowerShell** or **Command Prompt (CMD)** and press <kbd>Enter</kbd> to launch the interactive master menu with access to all 11 tools:
+No installation or pre-cloning required. Simply copy the verified one-liner command below into **PowerShell** or **Command Prompt (CMD)** and press <kbd>Enter</kbd> to launch the interactive master menu with access to all 12 tools:
 
 #### In PowerShell (Windows Terminal / PowerShell 5.1 & 7+):
 ```powershell
@@ -143,7 +144,7 @@ Download self-contained batch scripts to your computer and run them 100% offline
 
 ---
 
-## The 11 Tools
+## The 12 Tools
 
 ### 1. DEV Setup Center
 **File:** [`tools/dev-setup-center/DevSetupCenter.bat`](tools/dev-setup-center/DevSetupCenter.bat)  
@@ -329,6 +330,20 @@ Installed: 4                          Missing: 4
 - **Windows Explorer & Shell Flush**: Trims Explorer working set or performs a clean shell restart to purge thumbnail and icon cache memory leaks.
 - **Top RAM Hog Analyzer**: Real-time process memory profiler listing the top 15 memory-consuming applications with PID and RAM usage, plus targeted trimming.
 - **Real-Time RAM Telemetry & Gauge**: Visual ASCII/ANSI memory pressure gauge with live load classification (`[HEALTHY]`, `[ELEVATED LOAD]`, `[HIGH PRESSURE]`).
+
+---
+
+### 12. DEV Multi-Net Booster
+**File:** [`tools/dev-multi-net-booster/DevMultiNetBooster.bat`](tools/dev-multi-net-booster/DevMultiNetBooster.bat)  
+**Short ID:** `multi-net` | **Category:** Utilities  
+**Purpose:** Multi-adapter Wi-Fi aggregator, round-robin dispatch proxy, and parallel speed booster.
+
+- **Local Dispatch Proxy Engine**: Runs an ultra-fast local HTTP/HTTPS load-balancing proxy on `127.0.0.1:8080` that binds outgoing TCP sockets to each physical network adapter's IP address.
+- **Parallel Multi-Socket Bandwidth Multiplier**: Download managers (IDM, aria2, curl), Steam, and multi-threaded browser downloads automatically route each chunk through a different Wi-Fi dongle or phone hotspot, aggregating their speeds.
+- **Hardware Multi-Wi-Fi Aggregation**: Combines internal Wi-Fi 6 cards, USB Wi-Fi dongles, smartphone USB tethering, and Gigabit Ethernet (supports 2 to 10 connections).
+- **Equal-Cost Multi-Path (ECMP) Metric Balancer**: Configures Windows routing metrics to 15 with WeakHostSend/WeakHostReceive enabled for seamless multi-path IP routing.
+- **Real-Time Adapter Socket Benchmark**: Tests latency and TCP socket connectivity independently across each interface to confirm readiness before large downloads.
+- **1-Click System Proxy Toggle**: Effortlessly route system-wide browser traffic through the multi-network aggregator and restore normal settings with a single keypress.
 
 ---
 

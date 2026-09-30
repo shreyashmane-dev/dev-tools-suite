@@ -153,6 +153,15 @@ $ToolsCatalog = @(
         RelPath     = 'tools/dev-ram-booster/DevRamBooster.bat'
         Description = 'Laptop RAM cache cleaner, working set vacuum, and memory optimizer'
         Sha256      = ''
+    },
+    @{
+        Id          = 'multi-net-booster'
+        Alias       = @('12', 'multi-net', 'multinet', 'net-booster', 'dev-multi-net-booster', 'wifi-booster', 'bond', 'net')
+        Name        = 'DEV Multi-Net Booster'
+        File        = 'DevMultiNetBooster.bat'
+        RelPath     = 'tools/dev-multi-net-booster/DevMultiNetBooster.bat'
+        Description = 'Multi-adapter Wi-Fi aggregator, dispatch proxy, and parallel speed booster'
+        Sha256      = ''
     }
 )
 
